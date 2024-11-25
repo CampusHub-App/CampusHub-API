@@ -26,3 +26,14 @@ jobs:
       - shell: bash
         name: Compose up
         run: docker-compose -f /campushub/docker-compose.yml up -d
+
+  cleanup:
+    needs: compose
+    runs-on: self-hosted
+    steps:
+      - shell: bash
+        name: Cleanup everything
+        run: |
+          docker builder prune -af
+          docker system prune -af
+          rm -rf /home/actions-runner/_work
