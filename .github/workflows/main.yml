@@ -25,4 +25,4 @@ jobs:
     steps:
       - shell: bash
         name: Compose up
-        run: docker-compose up -d --file /campushub/docker-compose.yml
+        run: docker-compose -f /campushub/docker-compose.yml up -d
