@@ -1,0 +1,11 @@
+.git
+.git*
+.gitkeep
+.gitignore
+.gitattribute
+.gitlab-ci.yml
+.dockerignore
+.editorconfig
+env.example
+Dockerfile
+README.md
