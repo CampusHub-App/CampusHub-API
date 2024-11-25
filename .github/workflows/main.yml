@@ -8,8 +8,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build image lalu push ke registry
+        env:
+          dotenv: ${{ secrets.env }}
+          username: ${{ secrets.username }}
+          docker_password: ${{ secrets.password }}
         run: |
-          echo "${{ secrets.ENV }}" > .env
-          docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo "$dotenv" > .env
+          docker login -u $username -p $password
           docker build -t devopsofthemoon/campushub .
           docker push devopsofthemoon/campushub
