@@ -6,6 +6,7 @@ jobs:
     steps:
       - name: Build image lalu push ke registry
         run: |
+          ls -al
           echo "${{ secrets.ENV }}" > .env
           docker build -t devopsofthemoon/campushub .
           docker push devopsofthemoon/campushub
