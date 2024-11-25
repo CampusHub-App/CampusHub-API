@@ -20,8 +20,9 @@ jobs:
           docker push devopsofthemoon/campushub
 
   compose:
+    needs: build
     runs-on: self-hosted
     steps:
       - shell: bash
         name: Compose up
-        run: docker-compose up -d -f /campushub/docker-compose.yml
+        run: docker-compose up -d --file /campushub/docker-compose.yml
