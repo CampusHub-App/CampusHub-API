@@ -4,6 +4,9 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
       - name: Build image lalu push ke registry
         run: |
           ls -al
