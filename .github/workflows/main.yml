@@ -1,14 +1,11 @@
-on:
-  push:
-    branches:
-    - main
-
+name: Build, Compose, Cleanup
+on: [push]
 jobs:
   build:
-    name: build
     runs-on: self-hosted
     steps:
-    - run: |
-        echo "${{ secrets.ENV_FILE }}" > .env
-        docker build -t devopsofthemoon/campushub .
-        docker push devopsofthemoon/campushub
+      - name: Build image lalu push ke registry
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+          docker build -t devopsofthemoon/campushub .
+          docker push devopsofthemoon/campushub
