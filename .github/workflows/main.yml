@@ -9,8 +9,7 @@ jobs:
 
       - name: Build image lalu push ke registry
         run: |
-          ls -al
-          echo "${{ secrets.ENV }}"
           echo "${{ secrets.ENV }}" > .env
+          docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t devopsofthemoon/campushub .
           docker push devopsofthemoon/campushub
