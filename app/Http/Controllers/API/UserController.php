@@ -77,4 +77,15 @@ class UserController extends Controller
             'message' => 'Password updated successfully, please relogin',
         ]);
     }
+
+    public function delete(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        $request->user()->delete();
+        redirect('/');
+        return response([
+            'message' => 'User deleted successfully',
+        ]);
+    }
+    
 }

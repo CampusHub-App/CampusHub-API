@@ -12,17 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
-            $table->string('id', 5)->primary();
+            $table->string('id', 12)->primary();
             $table->foreignId('kategori_id')->constrained('categories')->onDelete('cascade');
-            $table->foreignId('tipe_id')->constrained('types')->onDelete('cascade');
+            $table->string('user_id', 6);
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('judul');
             $table->dateTime('datetime');
             $table->string('foto_event', 500)->nullable();
-            $table->string('foto_pembicara',500)->nullable();
-            $table->string('pembicara')->nullable();
-            $table->string('role')->nullable();
-            $table->string('deskripsi', 3000)->nullable();
+            $table->string('foto_pembicara', 500)->nullable();
+            $table->string('pembicara');
+            $table->string('role');
+            $table->string('deskripsi', 3000);
             $table->integer('available_slot');
+            $table->boolean('is_offline')->default(false);
             $table->string('tempat')->nullable();
             $table->timestamps();
         });

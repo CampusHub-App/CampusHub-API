@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -47,11 +48,12 @@ class User extends Authenticatable
         parent::Boot();
 
         static::creating(function ($model) {
+
             do {
-                $randomId = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 5);
+                $randomId = Str::random(6);
             } while (static::where('id', $randomId)->exists());
-    
             $model->id = $model->id ?? $randomId;
+
         });
     }
 
