@@ -18,7 +18,7 @@ class RegistrationsSeeder extends Seeder
 
         for ($i = 0; $i < 30; $i++) {
             DB::table('registrations')->insert([
-                'id' => strtoupper(Str::random(4)),
+                'id' => Str::random(4),
                 'user_id' => $users[array_rand($users)],
                 'event_id' => $events[array_rand($events)],
                 'is_cancelled' => rand(0, 1),
