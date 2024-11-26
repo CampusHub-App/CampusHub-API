@@ -12,8 +12,8 @@ jobs:
         run: |
           echo "${{ secrets.ENV }}" > .env
           docker login -u "${{ secrets.USERNAME }}" -p "${{ secrets.PASSWORD }}"
-          docker build -t "${{ secrets.USERNAME }}"/campushub .
-          docker push "${{ secrets.USERNAME }}"/campushub
+          docker build -t "${{ secrets.USERNAME }}"/campushub-api .
+          docker push "${{ secrets.USERNAME }}"/campushub-api
 
   compose:
     needs: build
