@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 
 class AuthController extends Controller
 {
@@ -17,24 +19,17 @@ class AuthController extends Controller
             'phone' => 'required|string|unique:users,nomor_telepon',
         ]);
 
-        try {
-            $user = User::create([
-                'fullname' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-                'nomor_telepon' => $request->phone,
-            ]);
+        $user = User::create([
+            'fullname' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'nomor_telepon' => $request->phone,
+        ]);
 
-            return response()->json([
-                'message' => 'Berhasil membuat user',
-                'user' => $user,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Gagal membuat user',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response([
+            'message' => 'User created successfully',
+        ]);
+
     }
 
     public function login(Request $request)
@@ -42,22 +37,41 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+            'remember_me' => 'boolean',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !\Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Login gagal',
+        if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response([
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'is_admin' => $user->is_admin,
+            ]);
+
+        } else {
+
+            return response([
+                'message' => 'Wrong email or password',
             ], 401);
+
         }
+    }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+    public function logout(Request $request)
+    {
 
-        return response()->json([
-            'message' => 'Login berhasil',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+        $request->user()->remember_token = null;
+        $request->user()->save();
+        $request->user()->tokens()->delete();
+        redirect('/');
+        return response([
+            'message' => 'Logged out successfully',
         ]);
+
     }
 }
