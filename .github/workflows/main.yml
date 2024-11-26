@@ -9,15 +9,11 @@ jobs:
 
       - shell: bash
         name: Build image lalu push ke registry
-        env:
-          dotenv: ${{ secrets.ENV }}
-          username: ${{ secrets.USERNAME }}
-          docker_password: ${{ secrets.password }}
         run: |
           echo ${{ secrets.ENV }} > .env
           docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.password }}
-          docker build -t devopsofthemoon/campushub .
-          docker push devopsofthemoon/campushub
+          docker build -t ${{ secrets.USERNAME }}/campushub .
+          docker push ${{ secrets.USERNAME }}/campushub
 
   compose:
     needs: build
