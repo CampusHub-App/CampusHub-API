@@ -8,11 +8,11 @@ use Aws\Exception\AwsException;
 
 class UserImageController extends Controller
 {
-    public function mkimage(Request $request)
+    public function upload(Request $request)
     {
 
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:15000',
+            'image' => 'required|image|max:15000',
         ]);
         
         $image = $request->file('image');
@@ -26,14 +26,22 @@ class UserImageController extends Controller
         ]);
         
         try {
-            $result = $s3->putObject([
+            $s3->putObject([
                 'Bucket' => env('AWS_BUCKET'),
                 'Key'    => 'users/' . $image->getClientOriginalName(),
-                'Body'   => $image,
+                'Body'   => fopen($image, 'r'),
+                'ACL'    => 'public-read'
             ]);
-            echo "File uploaded successfully. URL: " . $result['ObjectURL'] . "\n";
-        } catch (AwsException $e) {
-            echo "Error uploading file: " . $e->getMessage() . "\n";
+            $request->user()->update([
+                'image' => $image->getClientOriginalName(),
+            ]);
+            $request->user()->save();
+            return response("Image uploaded successfully");
+        } catch (AwsException $error) {
+            return response([
+                'message' => 'Error uploading image',
+                'error' => $error->getMessage()
+            ]);
         }
         
     }
