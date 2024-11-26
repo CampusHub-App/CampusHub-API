@@ -14,3 +14,5 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::post('/user', [UserController::class, 'update'])->middleware('auth:sanctum');
 
 Route::get('/user', [UserController::class, 'read'])->middleware('auth:sanctum');
+
+Route::post('/change-password', [UserController::class, 'change'])->middleware('auth:sanctum');
