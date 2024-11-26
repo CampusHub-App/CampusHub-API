@@ -7,11 +7,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build image lalu push ke registry
+      - shell: bash
+        name: Build image lalu push ke registry
         env:
           dotenv: ${{ secrets.ENV }}
           username: ${{ secrets.USERNAME }}
-          docker_password: ${{ secrets.PASSWORD }}
+          docker_password: ${{ secrets.password }}
         run: |
           echo "$dotenv" > .env
           docker login -u "$username" -p "$password"
@@ -22,14 +23,16 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Compose up
+      - shell: bash
+        name: Compose up
         run: docker-compose -f /campushub/docker-compose.yml up -d
 
   cleanup:
     needs: compose
     runs-on: self-hosted
     steps:
-      - name: Cleanup everything
+      - shell: bash
+        name: Cleanup everything
         run: |
           docker builder prune -af
           docker system prune -af
