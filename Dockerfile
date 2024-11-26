@@ -12,4 +12,4 @@ RUN chown -R www-data:www-data /var/www/
 # Aplikasi siap dijalankan
 USER www-data
 RUN composer update
-CMD php artisan serve --host=0.0.0.0:8000
+CMD php artisan serve --host=0.0.0.0
