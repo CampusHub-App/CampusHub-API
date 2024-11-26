@@ -12,9 +12,9 @@ jobs:
         name: Build image lalu push ke registry
         run: |
           echo "${{ secrets.ENV }}" > .env
-          docker login -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }}
-          docker build -t ${{ secrets.USERNAME }}/campushub .
-          docker push ${{ secrets.USERNAME }}/campushub
+          docker login -u "${{ secrets.USERNAME }}" -p "${{ secrets.PASSWORD }}"
+          docker build -t "${{ secrets.USERNAME }}"/campushub .
+          docker push "${{ secrets.USERNAME }}"/campushub
 
   compose:
     needs: build
