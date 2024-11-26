@@ -21,6 +21,6 @@ Route::post('/change-password', [UserController::class, 'change'])->middleware('
 
 Route::get('/events', [EventController::class, 'index']);
 
-Route::get('/events/{id}', [EventController::class, 'details']);
+Route::get('/events/{id}/view', [EventController::class, 'details']);
 
 Route::get('/categories', [EventController::class, 'categories']);
