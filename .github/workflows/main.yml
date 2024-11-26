@@ -13,8 +13,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           docker_password: ${{ secrets.PASSWORD }}
         run: |
-          echo $dotenv > .env
-          docker login -u $username -p $password
+          echo "$dotenv" > .env
+          docker login -u "$username" -p "$password"
           docker build -t devopsofthemoon/campushub .
           docker push devopsofthemoon/campushub
 
