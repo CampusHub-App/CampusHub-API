@@ -45,5 +45,19 @@ class EventController extends Controller
         }
     }
 
+    public function mine(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->is_admin) {
+            $events = Event::where('user_id', $user->id)->get();
+        } else {
+            $events = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.user_id', $user->id)
+                ->get();
+        }
+
+        return response($events);
+    }
 
 }
