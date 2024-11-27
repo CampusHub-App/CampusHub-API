@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Category;
-use App\Models\User;
 use Illuminate\Support\Str;
 
 class Event extends Model
@@ -45,6 +43,7 @@ class Event extends Model
 
     protected $casts = [
         'datetime' => 'datetime',
+        'is_offline' => 'boolean',
     ];
 
     public function category()

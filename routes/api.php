@@ -25,4 +25,18 @@ Route::get('/events/{id}/view', [EventController::class, 'details']);
 
 Route::get('/categories', [EventController::class, 'categories']);
 
-Route::get('/my-events', [EventController::class, 'mine'])->middleware('auth:sanctum');
+Route::get('/my-events/all', [EventController::class, 'mine'])->middleware('auth:sanctum');
+
+Route::get('/my-events/registered', [EventController::class, 'registered'])->middleware('auth:sanctum');
+
+Route::get('/my-events/cancelled', [EventController::class, 'cancelled'])->middleware('auth:sanctum');
+
+Route::get('/my-events/{id}', [EventController::class, 'filter'])->middleware('auth:sanctum');
+
+Route::get('/events/{id}/participants/all', [EventController::class, 'participants'])->middleware('auth:sanctum');
+
+Route::get('/events/{id}/participants/cancelled', [EventController::class, 'absent'])->middleware('auth:sanctum');
+
+Route::get('/events/{id}/participants/registered', [EventController::class, 'attend'])->middleware('auth:sanctum');
+
+Route::get('/events/{id}/kode-unik', [EventController::class, 'kode'])->middleware('auth:sanctum');
