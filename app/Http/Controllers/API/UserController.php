@@ -5,32 +5,34 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Aws\S3\S3Client;
+use App\Models\User;
 use Aws\Exception\AwsException;
 
 class UserController extends Controller
 {
+    public $s3 = new S3Client([
+        'version' => 'latest',
+        'region'  => env('AWS_DEFAULT_REGION'),
+        'credentials' => [
+            'key'    => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        ],
+    ]);
+
     public function update(Request $request)
     {
 
         $request->validate([
             'name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|unique:users,nomor_telepon',
+            'email' => 'required|email|unique:users,email,' . $request->user()->id,
+            'phone' => 'required|string|unique:users,nomor_telepon,' . $request->user()->id,
             'photo' => 'image|max:15000',
         ]);
         
         $photo = $request->file('photo');
-        $s3 = new S3Client([
-            'version' => 'latest',
-            'region'  => env('AWS_DEFAULT_REGION'),
-            'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-        ]);
         
         try {
-            $result = $s3->putObject([
+            $result = $this->s3->putObject([
                 'Bucket' => env('AWS_BUCKET'),
                 'Key'    => 'users/' . $photo->getClientOriginalName(),
                 'Body'   => $photo->get(),
@@ -67,9 +69,12 @@ class UserController extends Controller
             'confirmation' => 'required|string|same:password',
         ]);
 
-        $request->user()->password = bcrypt($request->password);
-        $request->user()->remember_token = null;
-        $request->user()->save();
+        //ganti jadi pake model
+        User::update(
+            ['password' => bcrypt($request->password)],
+            ['remember_token' => null]
+        );
+
         $request->user()->tokens()->delete();
         redirect('/');
 

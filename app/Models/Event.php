@@ -26,6 +26,7 @@ class Event extends Model
         'available_slot',
         'is_offline',
         'tempat',
+        'user_id',
     ];
 
     protected static function boot()

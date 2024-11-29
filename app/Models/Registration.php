@@ -20,6 +20,8 @@ class Registration extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id',
+        'event_id',
         'is_cancelled',
     ];
 
@@ -33,7 +35,7 @@ class Registration extends Model
         static::creating(function ($model) {
 
             do {
-                $randomId = Str::random(6);
+                $randomId = Str::random(4);
             } while (static::where('id', $randomId)->exists());
             $model->id = $model->id ?? $randomId;
 

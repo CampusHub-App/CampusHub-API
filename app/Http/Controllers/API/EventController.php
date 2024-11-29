@@ -10,6 +10,16 @@ use App\Models\Registration;
 
 class EventController extends Controller
 {
+
+    public $s3 = new S3Client([
+        'version' => 'latest',
+        'region'  => env('AWS_DEFAULT_REGION'),
+        'credentials' => [
+            'key'    => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        ],
+    ]);
+
     public function index(Request $request)
     {
         $query = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
@@ -27,7 +37,7 @@ class EventController extends Controller
 
     public function categories()
     {
-        return response(Category::all()->pluck('kategori'));
+        return response(Category::all()->select('id', 'kategori'));
     }
 
     public function details($id)
@@ -83,13 +93,13 @@ class EventController extends Controller
     {
 
         if (!$request->user()->is_admin) {
-            return response([
+            return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                     ->where('registrations.user_id', $request->user()->id)
                     ->where('registrations.is_cancelled', false)
                     ->select('events.*')
                     ->get()
-            ]);
+            );
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -102,13 +112,13 @@ class EventController extends Controller
     {
 
         if (!$request->user()->is_admin) {
-            return response([
+            return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                     ->where('registrations.user_id', $request->user()->id)
                     ->where('registrations.is_cancelled', true)
                     ->select('events.*')
                     ->get()
-            ]);
+            );
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -200,5 +210,120 @@ class EventController extends Controller
             ], 401);
         }
 
+    }
+
+    public function register(Request $request, $id)
+    {
+
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response([
+                'message' => 'Event not found'
+            ], 404);
+        }
+
+        if ($event->available_slot <= 0) {
+            return response([
+                'message' => 'Event is already full'
+            ], 400);
+        }
+
+        $registration = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->first();
+
+        if ($registration) {
+            return response([
+                'message' => 'Already registered'
+            ], 400);
+        }
+
+        Registration::create([
+            'event_id' => $id,
+            'user_id' => $request->user()->id,
+        ]);
+
+        $event->available_slot -= 1;
+        $event->save();
+
+        return response([
+            'message' => 'Registered successfully'
+        ]);
+    }
+
+    public function cancel(Request $request, $id)
+    {
+
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response([
+                'message' => 'Event not found'
+            ], 404);
+        }
+
+        $registration = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->first();
+
+        if (!$registration) {
+            return response([
+                'message' => 'Not registered'
+            ], 400);
+        }
+
+        if ($registration->is_cancelled) {
+            return response([
+                'message' => 'Already cancelled'
+            ], 400);
+        }
+
+        $registration->is_cancelled = true;
+        $registration->save();
+
+        $event->available_slot += 1;
+        $event->save();
+
+        return response([
+            'message' => 'Cancelled successfully'
+        ]);
+    }
+
+    public function create(Request $request)
+    {
+
+        $request->validate([
+            'title' => 'required',
+            'desc' => 'required',
+            'date' => 'required|date',
+            'time' => 'required|date_format:H:i',
+            'event_img' => 'image|max:15000',
+            'speaker' => 'required',
+            'speaker_img' => 'image|max:15000',
+            'role' => 'required',
+            'is_offline' => 'required|boolean',
+            'location' => 'nullable|required_if:is_offline,true',
+            'category' => 'required|integer|between:1,5',
+            'slot' => 'required|integer|min:1',
+        ]);
+               
+
+        Event::create([
+            'judul' => $request->title,
+            'deskripsi' => $request->desc,
+            'datetime' => $request->date . ' ' . $request->time,
+            'pembicara' => $request->speaker,
+            'role' => $request->role,
+            'is_offline' => $request->is_offline,
+            'tempat' => $request->location,
+            'kategori_id' => $request->category,
+            'available_slot' => $request->slot,
+            'user_id' => $request->user()->id,
+        ]);
+
+        //upload foto
+        
+
+
+        return response([
+            'message' => 'Event created successfully'
+        ]);
     }
 }
