@@ -26,7 +26,6 @@ class Event extends Model
         'pembicara',
         'role',
         'available_slot',
-        'is_offline',
         'tempat',
         'user_id',
     ];
@@ -46,9 +45,8 @@ class Event extends Model
 
     protected $casts = [
         'date' => 'date:Y-m-d',
-        'start_time' => 'datetime:H:i:s',
-        'end_time' => 'datetime:H:i:s',
-        'is_offline' => 'boolean',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
     ];
 
     public function category()

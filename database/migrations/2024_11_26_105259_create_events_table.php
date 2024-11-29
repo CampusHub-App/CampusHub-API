@@ -26,8 +26,7 @@ return new class extends Migration
             $table->string('role');
             $table->string('deskripsi', 3000);
             $table->integer('available_slot');
-            $table->boolean('is_offline')->default(false);
-            $table->string('tempat')->nullable();
+            $table->string('tempat')->default('Online');
             $table->timestamps();
         });
     }

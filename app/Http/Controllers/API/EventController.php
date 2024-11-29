@@ -30,51 +30,109 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
+
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No events available',
+            ]);
+        }
+
     }
 
     public function webinar()
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 1)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
+
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No webinars available',
+            ]);
+        }
+
     }
 
     public function seminar()
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 2)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
+
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No seminar available',
+            ]);
+        }
+
     }
 
     public function kuliahtamu()
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 3)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
+
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No kuliah tamu available',
+            ]);
+        }
+
     }
 
     public function workshop()
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 4)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
+
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No workshop available',
+            ]);
+        }
+
     }
 
     public function sertifikasi()
     {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+
+        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 5)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime']));
-    }
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
 
+        if ($events) {
+            return response($events);
+        } else {
+            return response([
+                'message' => 'No sertifikasi available',
+            ]);
+        }
+
+    }
 
     public function categories()
     {
@@ -89,7 +147,7 @@ class EventController extends Controller
             ->first();
 
         if ($event) {
-            return response($event->makeHidden(['user_id', 'kategori_id']));
+            return response($event->makeHidden(['user_id', 'kategori_id', 'created_at', 'updated_at']));
         } else {
             return response([
                 'message' => 'Event not found',
@@ -102,12 +160,26 @@ class EventController extends Controller
         $user = $request->user();
 
         if ($user->is_admin) {
-            $events = Event::where('user_id', $user->id)->get();
+            $events = Event::where('user_id', $user->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if (!$events) {
+                return response([
+                    'message' => 'You have not uploaded any events',
+                ]);
+            }
         } else {
             $events = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $user->id)
-                ->select('events.*')
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.created_at) as join_date'))
                 ->get();
+
+            if (!$events) {
+                return response([
+                    'message' => 'You have not registered to any events',
+                ]);
+            }
         }
 
         return response($events);
@@ -117,12 +189,20 @@ class EventController extends Controller
     {
 
         if ($request->user()->is_admin) {
-            return response([
-                Event::where('kategori_id', 1)
-                    ->where('user_id', $request->user()->id)
-                    ->get()
-                    ->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime'])
-            ]);
+
+            $event = Event::where('kategori_id', 1)
+                ->where('user_id', $request->user()->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not uploaded any webinars',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -130,35 +210,51 @@ class EventController extends Controller
         }
 
     }
-    
+
     public function myseminar(Request $request)
     {
 
         if ($request->user()->is_admin) {
-            return response([
-                Event::where('kategori_id', 1)
-                    ->where('user_id', $request->user()->id)
-                    ->get()
-                    ->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime'])
-            ]);
+
+            $event = Event::where('kategori_id', 2)
+                ->where('user_id', $request->user()->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not uploaded any seminars',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
             ], 401);
-        }
 
+        }
     }
 
     public function mykuliahtamu(Request $request)
     {
 
         if ($request->user()->is_admin) {
-            return response([
-                Event::where('kategori_id', 3)
-                    ->where('user_id', $request->user()->id)
-                    ->get()
-                    ->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime'])
-            ]);
+
+            $event = Event::where('kategori_id', 3)
+                ->where('user_id', $request->user()->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not uploaded any kuliah tamu',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -171,12 +267,20 @@ class EventController extends Controller
     {
 
         if ($request->user()->is_admin) {
-            return response([
-                Event::where('kategori_id', 4)
-                    ->where('user_id', $request->user()->id)
-                    ->get()
-                    ->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime'])
-            ]);
+
+            $event = Event::where('kategori_id', 4)
+                ->where('user_id', $request->user()->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not uploaded any workshops',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -189,12 +293,20 @@ class EventController extends Controller
     {
 
         if ($request->user()->is_admin) {
-            return response([
-                Event::where('kategori_id', 5)
-                    ->where('user_id', $request->user()->id)
-                    ->get()
-                    ->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'is_offline', 'tempat', 'available_slot', 'tempat', 'foto_event', 'foto_pembicara', 'datetime'])
-            ]);
+
+            $event = Event::where('kategori_id', 5)
+                ->where('user_id', $request->user()->id)
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not uploaded any sertifikasi',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -207,13 +319,21 @@ class EventController extends Controller
     {
 
         if (!$request->user()->is_admin) {
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.user_id', $request->user()->id)
-                    ->where('registrations.is_cancelled', false)
-                    ->select('events.*')
-                    ->get()
-            );
+
+            $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.user_id', $request->user()->id)
+                ->where('registrations.is_cancelled', false)
+                ->select('events.*')
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not registered to any events',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -226,13 +346,21 @@ class EventController extends Controller
     {
 
         if (!$request->user()->is_admin) {
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.user_id', $request->user()->id)
-                    ->where('registrations.is_cancelled', true)
-                    ->select('events.*')
-                    ->get()
-            );
+
+            $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.user_id', $request->user()->id)
+                ->where('registrations.is_cancelled', true)
+                ->select('events.*')
+                ->get();
+
+            if ($event) {
+                return response($event);
+            } else {
+                return response([
+                    'message' => 'You have not cancelled any events',
+                ]);
+            }
+
         } else {
             return response([
                 'message' => 'Unauthorized'
@@ -248,13 +376,19 @@ class EventController extends Controller
 
         if ($user->is_admin && Event::where('id', $id)->where('user_id', $user->id)->exists()) {
 
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.event_id', $id)
-                    ->join('users', 'registrations.user_id', '=', 'users.id')
-                    ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
-                    ->get()
-            );
+            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.event_id', $id)
+                ->join('users', 'registrations.user_id', '=', 'users.id')
+                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->get();
+
+            if ($participants) {
+                return response($participants);
+            } else {
+                return response([
+                    'message' => 'No participants yet',
+                ]);
+            }
 
         } else {
 
@@ -270,14 +404,20 @@ class EventController extends Controller
 
         if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
 
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.event_id', $id)
-                    ->where('registrations.is_cancelled', false)
-                    ->join('users', 'registrations.user_id', '=', 'users.id')
-                    ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
-                    ->get()
-            );
+            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.event_id', $id)
+                ->where('registrations.is_cancelled', false)
+                ->join('users', 'registrations.user_id', '=', 'users.id')
+                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->get();
+
+            if ($participants) {
+                return response($participants);
+            } else {
+                return response([
+                    'message' => 'No registered participants yet',
+                ]);
+            }
 
         } else {
 
@@ -293,14 +433,20 @@ class EventController extends Controller
 
         if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
 
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.event_id', $id)
-                    ->where('registrations.is_cancelled', true)
-                    ->join('users', 'registrations.user_id', '=', 'users.id')
-                    ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
-                    ->get()
-            );
+            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.event_id', $id)
+                ->where('registrations.is_cancelled', true)
+                ->join('users', 'registrations.user_id', '=', 'users.id')
+                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->get();
+
+            if ($participants) {
+                return response($participants);
+            } else {
+                return response([
+                    'message' => 'No cancelled participants yet',
+                ]);
+            }
 
         } else {
 
@@ -356,8 +502,9 @@ class EventController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        $event->available_slot -= 1;
-        $event->save();
+        $event->update([
+            'available_slot' => $event->available_slot - 1
+        ]);
 
         return response([
             'message' => 'Registered successfully'
@@ -414,8 +561,7 @@ class EventController extends Controller
             'speaker' => 'required',
             'speaker_img' => 'image|max:15000',
             'role' => 'required',
-            'is_offline' => 'required|boolean',
-            'location' => 'nullable|required_if:is_offline,true',
+            'location' => 'nullable',
             'category' => 'required|integer|between:1,5',
             'slot' => 'required|integer|min:1',
         ]);
@@ -427,7 +573,6 @@ class EventController extends Controller
             'datetime' => $request->date . ' ' . $request->time,
             'pembicara' => $request->speaker,
             'role' => $request->role,
-            'is_offline' => $request->is_offline,
             'tempat' => $request->location,
             'kategori_id' => $request->category,
             'available_slot' => $request->slot,
@@ -509,8 +654,7 @@ class EventController extends Controller
             'speaker' => 'required',
             'speaker_img' => 'image|max:15000',
             'role' => 'required',
-            'is_offline' => 'required|boolean',
-            'location' => 'nullable|required_if:is_offline,true',
+            'location' => 'nullable',
             'category' => 'required|integer|between:1,5',
             'slot' => 'required|integer|min:1',
         ]);
@@ -521,7 +665,6 @@ class EventController extends Controller
             'datetime' => $request->date . ' ' . $request->time,
             'pembicara' => $request->speaker,
             'role' => $request->role,
-            'is_offline' => $request->is_offline,
             'tempat' => $request->location,
             'kategori_id' => $request->category,
             'available_slot' => $request->slot,
