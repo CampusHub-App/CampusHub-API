@@ -43,6 +43,15 @@ class Event extends Model
         });
     }
 
+    protected static function booted()
+    {
+        static::saving(function ($event) {
+            if (is_null($event->tempat)) {
+                $event->tempat = 'Online';
+            }
+        });
+    }
+
     protected $casts = [
         'date' => 'date:Y-m-d',
         'start_time' => 'datetime:H:i',

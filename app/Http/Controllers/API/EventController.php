@@ -379,7 +379,7 @@ class EventController extends Controller
             $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
                 ->get();
 
             if ($participants) {
@@ -408,7 +408,7 @@ class EventController extends Controller
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', false)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
                 ->get();
 
             if ($participants) {
@@ -437,7 +437,7 @@ class EventController extends Controller
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', true)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', 'registrations.created_at as join_date')
+                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
                 ->get();
 
             if ($participants) {
@@ -556,10 +556,11 @@ class EventController extends Controller
             'title' => 'required',
             'desc' => 'required',
             'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'event_img' => 'image|max:15000',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'event_img' => 'nullable|image|max:15000',
             'speaker' => 'required',
-            'speaker_img' => 'image|max:15000',
+            'speaker_img' => 'nullable|image|max:15000',
             'role' => 'required',
             'location' => 'nullable',
             'category' => 'required|integer|between:1,5',
@@ -570,7 +571,9 @@ class EventController extends Controller
         $event = Event::create([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
-            'datetime' => $request->date . ' ' . $request->time,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
             'pembicara' => $request->speaker,
             'role' => $request->role,
             'tempat' => $request->location,
@@ -649,10 +652,11 @@ class EventController extends Controller
             'title' => 'required',
             'desc' => 'required',
             'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'event_img' => 'image|max:15000',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'event_img' => 'nullable|image|max:15000',
             'speaker' => 'required',
-            'speaker_img' => 'image|max:15000',
+            'speaker_img' => 'nullable|image|max:15000',
             'role' => 'required',
             'location' => 'nullable',
             'category' => 'required|integer|between:1,5',
@@ -662,7 +666,9 @@ class EventController extends Controller
         $event->update([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
-            'datetime' => $request->date . ' ' . $request->time,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
             'pembicara' => $request->speaker,
             'role' => $request->role,
             'tempat' => $request->location,
@@ -675,7 +681,7 @@ class EventController extends Controller
             try {
                 $this->s3->deleteObject([
                     'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'events/' . pathinfo($event->foto_event, PATHINFO_FILENAME) . '.' . pathinfo($event->foto_event, PATHINFO_EXTENSION),
+                    'Key' => 'events/' . basename($event->foto_event),
                 ]);
             } catch (AwsException $error) {
                 return response([
@@ -709,7 +715,7 @@ class EventController extends Controller
             try {
                 $this->s3->deleteObject([
                     'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'speakers/' . pathinfo($event->foto_pembicara, PATHINFO_FILENAME) . '.' . pathinfo($event->foto_pembicara, PATHINFO_EXTENSION),
+                    'Key' => 'speakers/' . basename($event->foto_pembicara),
                 ]);
             } catch (AwsException $error) {
                 return response([
@@ -764,7 +770,7 @@ class EventController extends Controller
         try {
             $this->s3->deleteObject([
                 'Bucket' => env('AWS_BUCKET'),
-                'Key' => 'events/' . pathinfo($event->foto_event, PATHINFO_FILENAME) . '.' . pathinfo($event->foto_event, PATHINFO_EXTENSION),
+                'Key' => 'events/' . basename($event->foto_event),
             ]);
         } catch (AwsException $error) {
             return response([
@@ -775,7 +781,7 @@ class EventController extends Controller
         try {
             $this->s3->deleteObject([
                 'Bucket' => env('AWS_BUCKET'),
-                'Key' => 'speakers/' . pathinfo($event->foto_pembicara, PATHINFO_FILENAME) . '.' . pathinfo($event->foto_pembicara, PATHINFO_EXTENSION),
+                'Key' => 'speakers/' . basename($event->foto_pembicara),
             ]);
         } catch (AwsException $error) {
             return response([
