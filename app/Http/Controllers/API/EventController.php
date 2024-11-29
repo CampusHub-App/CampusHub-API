@@ -323,7 +323,7 @@ class EventController extends Controller
             $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', false)
-                ->select('events.*')
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.created_at) as join_date'))
                 ->get();
 
             if ($event) {
@@ -350,7 +350,7 @@ class EventController extends Controller
             $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', true)
-                ->select('events.*')
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.updated_at) as cancel_date'))
                 ->get();
 
             if ($event) {
@@ -460,14 +460,22 @@ class EventController extends Controller
     public function kode(Request $request, $id)
     {
 
-        $kode = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->select('id as kode_unik')->first();
+        $kode = Registration::where('event_id', $id)
+            ->where('user_id', $request->user()->id)
+            ->where('is_cancelled', false)
+            ->select('id as kode_unik')
+            ->first();
 
-        if (!$request->user()->is_admin && $kode) {
-            return response($kode);
-        } else {
+        if ($request->user()->is_admin) {
             return response([
                 'message' => 'Unauthorized'
             ], 401);
+        } else if (!$kode) {
+            return response([
+                'message' => 'You are not registered to this event'
+            ], 400);
+        } else {
+            return response($kode);
         }
 
     }
@@ -489,7 +497,21 @@ class EventController extends Controller
             ], 400);
         }
 
-        $registration = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->first();
+        if ($request->user()->is_admin) {
+            return response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $registration = Registration::where('event_id', $id)
+        ->where('user_id', $request->user()->id)
+        ->first();
+
+        if ($registration->is_cancelled) {
+            return response([
+                'message' => 'You have cancelled your registration'
+            ], 400);
+        }
 
         if ($registration) {
             return response([
@@ -520,6 +542,12 @@ class EventController extends Controller
             return response([
                 'message' => 'Event not found'
             ], 404);
+        }
+
+        if ($event->user_id == $request->user()->id) {
+            return response([
+                'message' => 'Unauthorized'
+            ], 401);
         }
 
         $registration = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->first();
