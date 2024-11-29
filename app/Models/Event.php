@@ -17,7 +17,9 @@ class Event extends Model
     protected $fillable = [
         'kategori_id',
         'judul',
-        'datetime',
+        'date',
+        'start_time',
+        'end_time',
         'deskripsi',
         'foto_event',
         'foto_pembicara',
@@ -43,7 +45,9 @@ class Event extends Model
     }
 
     protected $casts = [
-        'datetime' => 'datetime',
+        'date' => 'date:Y-m-d',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
         'is_offline' => 'boolean',
     ];
 

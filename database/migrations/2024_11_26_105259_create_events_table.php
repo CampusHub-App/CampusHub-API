@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('user_id', 6);
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('judul');
-            $table->dateTime('datetime');
+            $table->date('date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->string('foto_event', 500)->nullable();
             $table->string('foto_pembicara', 500)->nullable();
             $table->string('pembicara');
