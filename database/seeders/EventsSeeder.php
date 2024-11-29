@@ -48,7 +48,6 @@ class EventsSeeder extends Seeder
                 'tempat' => 'UB Guest House',
                 'kategori_id' => 4,
                 'user_id' => '2kNuXn',
-                'tempat' => null,
             ],
             [
                 'id' => 'oRgtmFSDO6aa',
@@ -66,7 +65,6 @@ class EventsSeeder extends Seeder
                 'tempat' => 'Auditorium Algoritma FILKOM UB',
                 'kategori_id' => 2,
                 'user_id' => '2kNuXn',
-                'tempat' => null,
             ],
             [
                 'id' => 'IhnQLC0AbQBt',
@@ -169,7 +167,6 @@ class EventsSeeder extends Seeder
                 'tempat' => 'Auditorium Algoritma FILKOM UB',
                 'kategori_id' => 1,
                 'user_id' => '4rSpZl',
-                'tempat' => null,
             ]
         ];
 
