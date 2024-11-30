@@ -4,10 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Aws\S3\S3Client;
-use App\Models\User;
-use Aws\Exception\AwsException;
 use Illuminate\Support\Str;
+use App\Services\S3Service;
 
 class UserController extends Controller
 {
@@ -16,14 +14,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->s3 = new S3Client([
-            'version' => 'latest',
-            'region' => env('AWS_DEFAULT_REGION'),
-            'credentials' => [
-                'key' => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-        ]);
+        $this->s3 = new S3Service();
     }
 
     public function update(Request $request)
@@ -36,34 +27,38 @@ class UserController extends Controller
             'photo' => 'nullable|image|max:15000',
         ]);
 
+        if ($request->hasFile('photo')) {
+
+            if ($request->user()->photo) {
+
+                try {
+                    $this->s3->deleteImg('users', $request->user()->photo);
+                } catch (\Exception $error) {
+                    return response([
+                        'message' => $error->getMessage(),
+                    ], 500);
+                }
+
+            }
+
+            try {
+                $photo = $this->s3->uploadImg('users', $request->file('photo'));
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
+
+            $request->user()->update([
+                'photo' => $photo
+            ]);
+        }
+
         $request->user()->update([
             'fullname' => $request->name,
             'email' => $request->email,
             'nomor_telepon' => $request->phone
         ]);
-
-        if ($request->hasFile('photo')) {
-
-            $photo = $request->file('photo');
-
-            try {
-                $result = $this->s3->putObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'users/' . pathinfo($photo->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $photo->getClientOriginalExtension(),
-                    'Body' => $photo->get(),
-                    'ContentType' => $photo->getMimeType(),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error uploading photo',
-                ], 500);
-            }
-
-            $request->user()->update([
-                'photo' => $result['ObjectURL']
-            ]);
-
-        }
 
         return response([
             'message' => 'Profile updated successfully',

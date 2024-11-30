@@ -7,9 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Category;
 use App\Models\Registration;
-use Aws\S3\S3Client;
-use Aws\Exception\AwsException;
 use Illuminate\Support\Str;
+use App\Services\S3Service;
 
 class EventController extends Controller
 {
@@ -18,14 +17,7 @@ class EventController extends Controller
 
     public function __construct()
     {
-        $this->s3 = new S3Client([
-            'version' => 'latest',
-            'region' => env('AWS_DEFAULT_REGION'),
-            'credentials' => [
-                'key' => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-        ]);
+        $this->s3 = new S3Service();
     }
 
     public function index(Request $request)
@@ -170,10 +162,20 @@ class EventController extends Controller
                 ]);
             }
         } else {
+
             $events = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $user->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.created_at) as join_date'))
-                ->get();
+                ->select(
+                    'events.id',
+                    'events.judul',
+                    'events.foto_event',
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    'registrations.is_cancelled as status'
+                )
+                ->get()
+                ->each(function ($event) {
+                    $event->status = $event->status ? 'cancelled' : 'registered';
+                });
 
             if (!$events) {
                 return response([
@@ -323,7 +325,13 @@ class EventController extends Controller
             $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', false)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.created_at) as join_date'))
+                ->select(
+                    'events.id',
+                    'events.judul',
+                    'events.foto_event',
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    \DB::raw("'registered' as status")
+                )
                 ->get();
 
             if ($event) {
@@ -350,7 +358,13 @@ class EventController extends Controller
             $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', true)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(registrations.updated_at) as cancel_date'))
+                ->select(
+                    'events.id',
+                    'events.judul',
+                    'events.foto_event',
+                    \DB::raw('DATE(registrations.updated_at) as cancel_date'),
+                    \DB::raw("'cancelled' as status")
+                )
                 ->get();
 
             if ($event) {
@@ -504,8 +518,8 @@ class EventController extends Controller
         }
 
         $registration = Registration::where('event_id', $id)
-        ->where('user_id', $request->user()->id)
-        ->first();
+            ->where('user_id', $request->user()->id)
+            ->first();
 
         if ($registration->is_cancelled) {
             return response([
@@ -596,63 +610,46 @@ class EventController extends Controller
         ]);
 
 
+
+        if ($request->hasFile('event_img')) {
+
+            try {
+                $foto_event = $this->s3->uploadImg('events', $request->file('event_img'));
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
+
+        }
+
+        if ($request->hasFile('speaker_img')) {
+
+            try {
+                $foto_pembicara = $this->s3->uploadImg('speakers', $request->file('speaker_img'));
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
+
+        }
+
         $event = Event::create([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
+            'foto_event' => $foto_event,
             'pembicara' => $request->speaker,
+            'foto_pembicara' => $foto_pembicara,
             'role' => $request->role,
             'tempat' => $request->location,
             'kategori_id' => $request->category,
             'available_slot' => $request->slot,
             'user_id' => $request->user()->id,
         ]);
-
-        if ($request->hasFile('event_img')) {
-            $event_img = $request->file('event_img');
-
-            try {
-                $event_result = $this->s3->putObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'events/' . pathinfo($event_img->getClientOriginalName(), PATHINFO_FILENAME) . "-" . Str::random(16) . '.' . $event_img->getClientOriginalExtension(),
-                    'Body' => $event_img->get(),
-                    'ContentType' => $event_img->getMimeType(),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error uploading event image',
-                ], 500);
-            }
-
-            $event->update([
-                'foto_event' => $event_result['ObjectURL']
-            ]);
-
-        }
-
-        if ($request->hasFile('speaker_img')) {
-            $speaker_img = $request->file('speaker_img');
-
-            try {
-                $speaker_result = $this->s3->putObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'speakers/' . pathinfo($speaker_img->getClientOriginalName(), PATHINFO_FILENAME) . "-" . Str::random(16) . "." . $speaker_img->getClientOriginalExtension(),
-                    'Body' => $speaker_img->get(),
-                    'ContentType' => $speaker_img->getMimeType(),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error uploading speaker image',
-                ], 500);
-            }
-
-            $event->update([
-                'foto_pembicara' => $speaker_result['ObjectURL']
-            ]);
-
-        }
 
         return response([
             'message' => 'Event created successfully'
@@ -691,6 +688,58 @@ class EventController extends Controller
             'slot' => 'required|integer|min:1',
         ]);
 
+        if ($request->hasFile('event_img')) {
+
+            if ($event->foto_event) {
+                try {
+                    $this->s3->deleteImg('events', $event->foto_event);
+                } catch (\Exception $error) {
+                    return response([
+                        'message' => $error->getMessage(),
+                    ], 500);
+                }
+            }
+
+            try {
+                $foto_event = $this->s3->uploadImg('events', $request->file('event_img'));
+
+                $event->update([
+                    'foto_event' => $foto_event,
+                ]);
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
+
+        }
+
+        if ($request->hasFile('speaker_img')) {
+
+            if ($event->foto_pembicara) {
+                try {
+                    $this->s3->deleteImg('speakers', $event->foto_pembicara);
+                } catch (\Exception $error) {
+                    return response([
+                        'message' => $error->getMessage(),
+                    ], 500);
+                }
+            }
+
+            try {
+                $foto_pembicara = $this->s3->uploadImg('speakers', $request->file('speaker_img'));
+
+                $event->update([
+                    'foto_pembicara' => $foto_pembicara,
+                ]);
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
+
+        }
+
         $event->update([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
@@ -703,74 +752,6 @@ class EventController extends Controller
             'kategori_id' => $request->category,
             'available_slot' => $request->slot,
         ]);
-
-        if ($request->hasFile('event_img')) {
-
-            try {
-                $this->s3->deleteObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'events/' . basename($event->foto_event),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error deleting event image',
-                ], 500);
-            }
-
-            $event_img = $request->file('event_img');
-
-            try {
-                $event_result = $this->s3->putObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'events/' . pathinfo($event_img->getClientOriginalName(), PATHINFO_FILENAME) . "-" . Str::random(16) . '.' . $event_img->getClientOriginalExtension(),
-                    'Body' => $event_img->get(),
-                    'ContentType' => $event_img->getMimeType(),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error uploading event image',
-                ], 500);
-            }
-
-            $event->update([
-                'foto_event' => $event_result['ObjectURL']
-            ]);
-
-        }
-
-        if ($request->hasFile('speaker_img')) {
-
-            try {
-                $this->s3->deleteObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'speakers/' . basename($event->foto_pembicara),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error deleting speaker image',
-                ], 500);
-            }
-
-            $speaker_img = $request->file('speaker_img');
-
-            try {
-                $speaker_result = $this->s3->putObject([
-                    'Bucket' => env('AWS_BUCKET'),
-                    'Key' => 'speakers/' . pathinfo($speaker_img->getClientOriginalName(), PATHINFO_FILENAME) . "-" . Str::random(16) . "." . $speaker_img->getClientOriginalExtension(),
-                    'Body' => $speaker_img->get(),
-                    'ContentType' => $speaker_img->getMimeType(),
-                ]);
-            } catch (AwsException $error) {
-                return response([
-                    'message' => 'Error uploading speaker image',
-                ], 500);
-            }
-
-            $event->update([
-                'foto_pembicara' => $speaker_result['ObjectURL']
-            ]);
-
-        }
 
         return response([
             'message' => 'Event updated successfully'
@@ -795,26 +776,24 @@ class EventController extends Controller
             ], 401);
         }
 
-        try {
-            $this->s3->deleteObject([
-                'Bucket' => env('AWS_BUCKET'),
-                'Key' => 'events/' . basename($event->foto_event),
-            ]);
-        } catch (AwsException $error) {
-            return response([
-                'message' => 'Error deleting event image',
-            ], 500);
+        if ($event->foto_event) {
+            try {
+                $this->s3->deleteImg('events', $event->foto_event);
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
         }
 
-        try {
-            $this->s3->deleteObject([
-                'Bucket' => env('AWS_BUCKET'),
-                'Key' => 'speakers/' . basename($event->foto_pembicara),
-            ]);
-        } catch (AwsException $error) {
-            return response([
-                'message' => 'Error deleting speaker image',
-            ], 500);
+        if ($event->foto_pembicara) {
+            try {
+                $this->s3->deleteImg('speakers', $event->foto_pembicara);
+            } catch (\Exception $error) {
+                return response([
+                    'message' => $error->getMessage(),
+                ], 500);
+            }
         }
 
         $event->delete();
