@@ -393,8 +393,16 @@ class EventController extends Controller
             $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
-                ->get();
+                ->select(
+                    'users.fullname', 
+                    'users.photo', 
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    'registrations.is_cancelled as status'
+                )
+                ->get()
+                ->each(function ($participant) {
+                    $participant->status = $participant->status ? 'cancelled' : 'registered';
+                });
 
             if ($participants) {
                 return response($participants);
@@ -422,7 +430,12 @@ class EventController extends Controller
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', false)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
+                ->select(
+                    'users.fullname',
+                    'users.photo',
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    \DB::raw("'registered' as status")
+                )
                 ->get();
 
             if ($participants) {
@@ -451,7 +464,12 @@ class EventController extends Controller
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', true)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select('users.fullname', 'users.photo', \DB::raw('DATE(registrations.created_at) as join_date'))
+                ->select(
+                    'users.fullname',
+                    'users.photo',
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    \DB::raw("'cancelled' as status")
+                )
                 ->get();
 
             if ($participants) {
