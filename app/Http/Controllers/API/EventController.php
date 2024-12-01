@@ -129,11 +129,9 @@ class EventController extends Controller
     public function count()
     {
         return response([
-            'trending' => Event::whereRaw("TIMESTAMP(date, end_time) >= CURRENT_TIMESTAMP")->count(),
-            'current_timestamp' => \DB::selectOne("SELECT CURRENT_TIMESTAMP AS `db_current_timestamp`")->db_current_timestamp,
-            'current_server' => date('Y-m-d H:i:s'),
+            'trending' => Event::whereRaw("CONCAT(date, ' ', end_time) >= ?", [date('Y-m-d H:i:s')])->count(),
             'category' => Category::count(),
-        ]);      
+        ]);
     }
 
     public function categories()
