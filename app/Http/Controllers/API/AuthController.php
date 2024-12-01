@@ -18,7 +18,7 @@ class AuthController extends Controller
             'phone' => 'required|string|unique:users,nomor_telepon',
         ]);
 
-        $user = User::create([
+        User::create([
             'fullname' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),

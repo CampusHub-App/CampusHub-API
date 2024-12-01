@@ -97,18 +97,14 @@ class EventController extends Controller
         $user = $request->user();
 
         if ($user->is_admin) {
-            $events = Event::where('user_id', $user->id)
+            return response(
+                Event::where('user_id', $user->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if (!$events) {
-                return response([
-                    'message' => 'You have not uploaded any events',
-                ]);
-            }
+                ->get()
+            );
         } else {
-
-            $events = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response (
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $user->id)
                 ->select(
                     'events.id',
@@ -120,16 +116,9 @@ class EventController extends Controller
                 ->get()
                 ->each(function ($event) {
                     $event->status = $event->status ? 'cancelled' : 'registered';
-                });
-
-            if (!$events) {
-                return response([
-                    'message' => 'You have not registered to any events',
-                ]);
-            }
+                })
+            );
         }
-
-        return response($events);
     }
 
     public function mywebinar(Request $request)
@@ -137,18 +126,10 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
 
-            $event = Event::where('kategori_id', 1)
+            return response(Event::where('kategori_id', 1)
                 ->where('user_id', $request->user()->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not uploaded any webinars',
-                ]);
-            }
+                ->get());
 
         } else {
             return response([
@@ -163,18 +144,12 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
 
-            $event = Event::where('kategori_id', 2)
+            return response(
+                Event::where('kategori_id', 2)
                 ->where('user_id', $request->user()->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not uploaded any seminars',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
@@ -189,18 +164,12 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
 
-            $event = Event::where('kategori_id', 3)
+            return response(
+                Event::where('kategori_id', 3)
                 ->where('user_id', $request->user()->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not uploaded any kuliah tamu',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
@@ -215,23 +184,18 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
 
-            $event = Event::where('kategori_id', 4)
+            return response(
+                Event::where('kategori_id', 4)
                 ->where('user_id', $request->user()->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not uploaded any workshops',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
                 'message' => 'Unauthorized'
             ], 401);
+
         }
 
     }
@@ -241,18 +205,12 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
 
-            $event = Event::where('kategori_id', 5)
+            return response(
+                Event::where('kategori_id', 5)
                 ->where('user_id', $request->user()->id)
                 ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not uploaded any sertifikasi',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
@@ -267,7 +225,8 @@ class EventController extends Controller
 
         if (!$request->user()->is_admin) {
 
-            $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response (
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', false)
                 ->select(
@@ -277,15 +236,8 @@ class EventController extends Controller
                     \DB::raw('DATE(registrations.created_at) as join_date'),
                     \DB::raw("'registered' as status")
                 )
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not registered to any events',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
@@ -300,7 +252,8 @@ class EventController extends Controller
 
         if (!$request->user()->is_admin) {
 
-            $event = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response(
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
                 ->where('registrations.is_cancelled', true)
                 ->select(
@@ -310,15 +263,8 @@ class EventController extends Controller
                     \DB::raw('DATE(registrations.updated_at) as cancel_date'),
                     \DB::raw("'cancelled' as status")
                 )
-                ->get();
-
-            if ($event) {
-                return response($event);
-            } else {
-                return response([
-                    'message' => 'You have not cancelled any events',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
             return response([
@@ -335,7 +281,8 @@ class EventController extends Controller
 
         if ($user->is_admin && Event::where('id', $id)->where('user_id', $user->id)->exists()) {
 
-            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response(
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
                 ->select(
@@ -347,15 +294,8 @@ class EventController extends Controller
                 ->get()
                 ->each(function ($participant) {
                     $participant->status = $participant->status ? 'cancelled' : 'registered';
-                });
-
-            if ($participants) {
-                return response($participants);
-            } else {
-                return response([
-                    'message' => 'No participants yet',
-                ]);
-            }
+                })
+            );
 
         } else {
 
@@ -371,7 +311,8 @@ class EventController extends Controller
 
         if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
 
-            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response(
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', false)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
@@ -381,15 +322,8 @@ class EventController extends Controller
                     \DB::raw('DATE(registrations.created_at) as join_date'),
                     \DB::raw("'registered' as status")
                 )
-                ->get();
-
-            if ($participants) {
-                return response($participants);
-            } else {
-                return response([
-                    'message' => 'No registered participants yet',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
 
@@ -405,7 +339,8 @@ class EventController extends Controller
 
         if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
 
-            $participants = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+            return response(
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
                 ->where('registrations.is_cancelled', true)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
@@ -415,15 +350,8 @@ class EventController extends Controller
                     \DB::raw('DATE(registrations.created_at) as join_date'),
                     \DB::raw("'cancelled' as status")
                 )
-                ->get();
-
-            if ($participants) {
-                return response($participants);
-            } else {
-                return response([
-                    'message' => 'No cancelled participants yet',
-                ]);
-            }
+                ->get()
+            );
 
         } else {
 
@@ -450,7 +378,7 @@ class EventController extends Controller
         } else if (!$kode) {
             return response([
                 'message' => 'You are not registered to this event'
-            ], 400);
+            ], 401);
         } else {
             return response($kode);
         }
@@ -598,7 +526,7 @@ class EventController extends Controller
 
         }
 
-        $event = Event::create([
+        Event::create([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
             'date' => $request->date,
