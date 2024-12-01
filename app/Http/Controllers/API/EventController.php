@@ -27,7 +27,10 @@ class EventController extends Controller
             ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
 
         if ($events) {
-            return response($events);
+            return response([
+                'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
+                'category' => Category::count(),
+                'events' => $events]);
         } else {
             return response([
                 'message' => 'No events available',
