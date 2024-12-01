@@ -22,7 +22,6 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-
         return response([
             'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
             'category' => Category::count(),
@@ -30,97 +29,46 @@ class EventController extends Controller
                 ->select('events.*', 'categories.kategori as category_name')
                 ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time'])
         ]);
-
     }
 
     public function webinar()
     {
-
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 1)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
-
-        if ($events) {
-            return response($events);
-        } else {
-            return response([
-                'message' => 'No webinars available',
-            ]);
-        }
-
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function seminar()
     {
-
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 2)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
-
-        if ($events) {
-            return response($events);
-        } else {
-            return response([
-                'message' => 'No seminar available',
-            ]);
-        }
-
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function kuliahtamu()
     {
-
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 3)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
-
-        if ($events) {
-            return response($events);
-        } else {
-            return response([
-                'message' => 'No kuliah tamu available',
-            ]);
-        }
-
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function workshop()
     {
-
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 4)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
-
-        if ($events) {
-            return response($events);
-        } else {
-            return response([
-                'message' => 'No workshop available',
-            ]);
-        }
-
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function sertifikasi()
     {
-
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
             ->select('events.*', 'categories.kategori as category_name')
             ->where('kategori_id', 5)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
-
-        if ($events) {
-            return response($events);
-        } else {
-            return response([
-                'message' => 'No sertifikasi available',
-            ]);
-        }
-
+            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function categories()
