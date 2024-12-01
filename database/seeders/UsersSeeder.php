@@ -29,7 +29,7 @@ class UsersSeeder extends Seeder
                 'password' => bcrypt('12345678'),
                 'photo' => 'https://campushub.s3.ap-southeast-3.amazonaws.com/users/hasbi.png',
                 'nomor_telepon' => '081234567891',
-                'is_admin' => false,
+                'is_admin' => true,
             ],
             [
                 'id' => '4rSpZl',
@@ -38,7 +38,7 @@ class UsersSeeder extends Seeder
                 'password' => bcrypt('12345678'),
                 'photo' => 'https://campushub.s3.ap-southeast-3.amazonaws.com/users/natha.jpg',
                 'nomor_telepon' => '081234567892',
-                'is_admin' => false,
+                'is_admin' => true,
             ],
             [
                 'id' => '5qRmYk',
