@@ -23,7 +23,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $request->user()->id,
-            'phone' => 'required|string|unique:users,nomor_telepon,' . $request->user()->id,
+            'phone' => 'required|max:13|string|unique:users,nomor_telepon,' . $request->user()->id,
             'photo' => 'nullable|image|max:15000',
         ]);
 
