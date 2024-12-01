@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Category;
 use App\Models\Registration;
-use Illuminate\Support\Str;
 use App\Services\S3Service;
 
 class EventController extends Controller
