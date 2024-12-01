@@ -126,6 +126,16 @@ class EventController extends Controller
 
     }
 
+    public function count()
+    {
+        return response([
+            'trending' => Event::where('date', '>=', date('Y-m-d'))
+                ->where('start_time', '>=', date('H:i:s'))
+                ->count(),
+            'category' => Category::count(),
+        ]);
+    }
+
     public function categories()
     {
         return response(Category::all()->select('id', 'kategori'));
@@ -394,8 +404,8 @@ class EventController extends Controller
                 ->where('registrations.event_id', $id)
                 ->join('users', 'registrations.user_id', '=', 'users.id')
                 ->select(
-                    'users.fullname', 
-                    'users.photo', 
+                    'users.fullname',
+                    'users.photo',
                     \DB::raw('DATE(registrations.created_at) as join_date'),
                     'registrations.is_cancelled as status'
                 )
