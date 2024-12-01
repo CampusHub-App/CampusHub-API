@@ -20,7 +20,7 @@ class EventController extends Controller
         $this->s3 = new S3Service();
     }
 
-    public function index(Request $request)
+    public function index()
     {
         return response([
             'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
