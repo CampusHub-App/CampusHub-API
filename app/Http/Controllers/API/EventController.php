@@ -22,20 +22,14 @@ class EventController extends Controller
 
     public function index(Request $request)
     {
-        $events = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-            ->select('events.*', 'categories.kategori as category_name')
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']);
 
-        if ($events) {
-            return response([
-                'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
-                'category' => Category::count(),
-                'events' => $events]);
-        } else {
-            return response([
-                'message' => 'No events available',
-            ]);
-        }
+        return response([
+            'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
+            'category' => Category::count(),
+            'events' => Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+                ->select('events.*', 'categories.kategori as category_name')
+                ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time'])
+        ]);
 
     }
 
