@@ -33,8 +33,6 @@ Route::get('/events/kuliah-tamu', [EventController::class, 'kuliahtamu']);
 
 Route::get('/events/{id}/view', [EventController::class, 'details']);
 
-Route::get('/events/count', [EventController::class, 'count']);
-
 Route::get('/categories', [EventController::class, 'categories']);
 
 Route::get('/my-events/all', [EventController::class, 'mine'])->middleware('auth:sanctum');

@@ -129,14 +129,6 @@ class EventController extends Controller
 
     }
 
-    public function count()
-    {
-        return response([
-            'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
-            'category' => Category::count(),
-        ]);
-    }
-
     public function categories()
     {
         return response(Category::all()->select('id', 'kategori'));
