@@ -40,32 +40,33 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->email)
-                ->where('is_admin', false)
-                ->first();
+            ->where('is_admin', false)
+            ->first();
 
-        if($user) {
+        if ($user) {
 
             if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
 
                 $token = $user->createToken('auth_token')->plainTextToken;
-    
+
                 return response([
                     'message' => 'Login successful',
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                 ]);
-    
+
             } else {
-    
+
                 return response([
                     'message' => 'Wrong email or password',
                 ], 401);
-    
+
             }
         }
     }
 
-    public function atmin(Request $request) {
+    public function atmin(Request $request)
+    {
 
         $request->validate([
             'email' => 'required|email',
@@ -74,28 +75,34 @@ class AuthController extends Controller
         ]);
 
         $atmin = User::where('email', $request->email)
-                ->where('is_admin', true)
-                ->first();
+            ->where('is_admin', true)
+            ->first();
 
-        if($atmin) {
-            
+        if ($atmin) {
+
             if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
 
                 $token = $atmin->createToken('auth_token')->plainTextToken;
-    
+
                 return response([
                     'message' => 'Login successful',
                     'access_token' => $token,
                     'token_type' => 'Bearer',
                 ]);
-    
+
             } else {
-    
+
                 return response([
                     'message' => 'Wrong email or password',
                 ], 401);
-    
+
             }
+        } else {
+
+            return response([
+                'message' => 'Wrong email or password',
+            ], 401);
+
         }
 
     }
@@ -112,5 +119,5 @@ class AuthController extends Controller
         ]);
 
     }
-    
+
 }
