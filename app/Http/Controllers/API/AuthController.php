@@ -39,26 +39,65 @@ class AuthController extends Controller
             'remember_me' => 'boolean',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)
+                ->where('is_admin', false)
+                ->first();
 
-        if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
+        if($user) {
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+            if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
 
-            return response([
-                'message' => 'Login successful',
-                'access_token' => $token,
-                'token_type' => 'Bearer',
-                'is_admin' => $user->is_admin,
-            ]);
-
-        } else {
-
-            return response([
-                'message' => 'Wrong email or password',
-            ], 401);
-
+                $token = $user->createToken('auth_token')->plainTextToken;
+    
+                return response([
+                    'message' => 'Login successful',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                ]);
+    
+            } else {
+    
+                return response([
+                    'message' => 'Wrong email or password',
+                ], 401);
+    
+            }
         }
+    }
+
+    public function atmin(Request $request) {
+
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'remember_me' => 'boolean',
+        ]);
+
+        $atmin = User::where('email', $request->email)
+                ->where('is_admin', true)
+                ->first();
+
+        if($atmin) {
+            
+            if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
+
+                $token = $atmin->createToken('auth_token')->plainTextToken;
+    
+                return response([
+                    'message' => 'Login successful',
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                ]);
+    
+            } else {
+    
+                return response([
+                    'message' => 'Wrong email or password',
+                ], 401);
+    
+            }
+        }
+
     }
 
     public function logout(Request $request)

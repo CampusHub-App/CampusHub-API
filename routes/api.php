@@ -7,7 +7,9 @@ use App\Http\Controllers\API\EventController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login/user', [AuthController::class, 'login']);
+
+Route::post('/login/admin', [AuthController::class, 'atmin']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
