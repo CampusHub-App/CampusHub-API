@@ -411,13 +411,14 @@ class EventController extends Controller
             ->where('user_id', $request->user()->id)
             ->first();
 
-        if ($registration->is_cancelled) {
-            return response([
-                'message' => 'You have cancelled your registration'
-            ], 400);
-        }
-
         if ($registration) {
+
+            if ($registration->is_cancelled) {
+                return response([
+                    'message' => 'You have cancelled your registration'
+                ], 400);
+            }
+
             return response([
                 'message' => 'Already registered'
             ], 400);
