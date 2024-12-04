@@ -62,7 +62,12 @@ class AuthController extends Controller
                 ], 401);
 
             }
+        } else {
+            return response([
+                'message' => 'Wrong email or password',
+            ], 401);
         }
+        ;
     }
 
     public function atmin(Request $request)
