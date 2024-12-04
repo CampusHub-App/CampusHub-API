@@ -98,7 +98,7 @@ class EventController extends Controller
         if ($user->is_admin) {
             return response(
                 Event::where('user_id', $user->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get()
             );
         } else {
@@ -127,7 +127,7 @@ class EventController extends Controller
 
             return response(Event::where('kategori_id', 1)
                 ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get());
 
         } else {
@@ -146,7 +146,7 @@ class EventController extends Controller
             return response(
                 Event::where('kategori_id', 2)
                 ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get()
             );
 
@@ -166,7 +166,7 @@ class EventController extends Controller
             return response(
                 Event::where('kategori_id', 3)
                 ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get()
             );
 
@@ -186,7 +186,7 @@ class EventController extends Controller
             return response(
                 Event::where('kategori_id', 4)
                 ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get()
             );
 
@@ -207,7 +207,7 @@ class EventController extends Controller
             return response(
                 Event::where('kategori_id', 5)
                 ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'))
+                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
                 ->get()
             );
 
