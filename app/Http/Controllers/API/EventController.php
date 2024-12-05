@@ -712,7 +712,8 @@ class EventController extends Controller
             ], 401);
         }
 
-        $registration = Registration::where('event_id', $id)
+        $registration = Registration::where('id', $request->kode)
+            ->where('event_id', $id)
             ->where('is_cancelled', false)
             ->first();
 
