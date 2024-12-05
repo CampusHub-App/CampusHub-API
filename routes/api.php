@@ -67,7 +67,7 @@ Route::post('/events/{id}/cancel', [EventController::class, 'cancel'])->middlewa
 
 Route::post('/events', [EventController::class, 'create'])->middleware('auth:sanctum');
 
-Route::post('/events/{id}/edit', [EventController::class, 'update'])->middleware('auth:sanctum');
+Route::patch('/events/{id}/edit', [EventController::class, 'update'])->middleware('auth:sanctum');
 
 Route::delete('/events/{id}', [EventController::class, 'delete'])->middleware('auth:sanctum');
 
