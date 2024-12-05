@@ -27,7 +27,7 @@ class UsersSeeder extends Seeder
                 'fullname' => 'A. Issadurrofiq Jaya Utama',
                 'email' => 'rofiq@gmail.com',
                 'password' => bcrypt('12345678'),
-                'photo' => 'https://campushub.s3.ap-southeast-3.amazonaws.com/users/hasbi.png',
+                'photo' => 'https://campushub.s3.ap-southeast-3.amazonaws.com/users/rofiq.png',
                 'nomor_telepon' => '081234567891',
                 'is_admin' => true,
             ],
