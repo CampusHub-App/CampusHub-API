@@ -23,6 +23,7 @@ class Registration extends Model
         'user_id',
         'event_id',
         'is_cancelled',
+        'is_attended',
     ];
 
     /**
@@ -49,6 +50,7 @@ class Registration extends Model
      */
     protected $casts = [
         'is_cancelled' => 'boolean',
+        'is_attended' => 'boolean',
     ];
 
     /**

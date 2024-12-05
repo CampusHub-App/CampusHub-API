@@ -695,4 +695,47 @@ class EventController extends Controller
 
     }
 
+    public function checkin(Request $request, $id)
+    {
+
+        $event = Event::find($id);
+
+        if (!$event) {
+            return response([
+                'message' => 'Event not found'
+            ], 404);
+        }
+
+        if (!$request->user()->is_admin) {
+            return response([
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $registration = Registration::where('event_id', $id)
+            ->where('is_cancelled', false)
+            ->first();
+
+        if (!$registration) {
+            return response([
+                'message' => 'Not registered'
+            ], 400);
+        }
+
+        if ($registration->is_attended) {
+            return response([
+                'message' => 'Already checked in'
+            ], 400);
+        }
+
+        $registration->update([
+            'is_attended' => true
+        ]);
+
+        return response([
+            'message' => 'Checked in successfully'
+        ]);
+
+    }
+
 }

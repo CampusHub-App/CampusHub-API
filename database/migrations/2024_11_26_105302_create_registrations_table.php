@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
             $table->boolean('is_cancelled')->default(false);
+            $table->boolean('is_attended')->default(false);
             $table->timestamps();
         });
     }
