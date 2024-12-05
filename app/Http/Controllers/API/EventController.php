@@ -714,12 +714,17 @@ class EventController extends Controller
 
         $registration = Registration::where('id', $request->kode)
             ->where('event_id', $id)
-            ->where('is_cancelled', false)
             ->first();
 
         if (!$registration) {
             return response([
                 'message' => 'Not registered'
+            ], 400);
+        }
+
+        if ($registration->is_cancelled) {
+            return response([
+                'message' => 'Registration already cancelled'
             ], 400);
         }
 
