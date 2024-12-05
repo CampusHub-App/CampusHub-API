@@ -83,7 +83,7 @@ class EventController extends Controller
             ->first();
 
         if ($event) {
-            return response($event->makeHidden(['user_id', 'kategori_id', 'created_at', 'updated_at']));
+            return response($event->makeHidden(['user_id', 'created_at', 'updated_at']));
         } else {
             return response([
                 'message' => 'Event not found',
