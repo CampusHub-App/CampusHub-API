@@ -71,4 +71,6 @@ Route::post('/events/{id}/edit', [EventController::class, 'update'])->middleware
 
 Route::delete('/events/{id}', [EventController::class, 'delete'])->middleware('auth:sanctum');
 
+Route::get('/my-events/{id}/status', [EventController::class, 'status'])->middleware('auth:sanctum');
+
 Route::post('/my-events/{id}/check-in', [EventController::class, 'checkin'])->middleware('auth:sanctum');

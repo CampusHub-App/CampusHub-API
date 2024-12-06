@@ -782,4 +782,23 @@ class EventController extends Controller
 
     }
 
+    public function status(Request $request, $id)
+    {
+
+        $registration = Registration::where('user_id', $request->user()->id)
+            ->where('event_id', $id)
+            ->first();
+
+        if (!$registration) {
+            return response([
+                'message' => 'Not registered'
+            ], 400);
+        } else {
+            return response([
+                'status' => $registration->status
+            ]);
+        }
+
+    }
+
 }
