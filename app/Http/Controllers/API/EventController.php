@@ -390,7 +390,7 @@ class EventController extends Controller
         $kode = Registration::where('event_id', $id)
             ->where('user_id', $request->user()->id)
             ->where('status', '!=', 'cancelled')
-            ->select('id as kode_unik')
+            ->select('id as kode_unik', 'status')
             ->first();
 
         if ($request->user()->is_admin) {
