@@ -110,7 +110,7 @@ class EventController extends Controller
                     'events.judul',
                     'events.foto_event',
                     \DB::raw('DATE(registrations.created_at) as join_date'),
-                    'registrations.is_cancelled as status'
+                    'registrations.status'
                 )
                 ->get()
                 ->each(function ($event) {
@@ -227,7 +227,7 @@ class EventController extends Controller
             return response (
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
-                ->where('registrations.is_cancelled', false)
+                ->where('registrations.status', 'registered')
                 ->select(
                     'events.id',
                     'events.judul',
@@ -254,7 +254,7 @@ class EventController extends Controller
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.user_id', $request->user()->id)
-                ->where('registrations.is_cancelled', true)
+                ->where('registrations.status', 'cancelled')
                 ->select(
                     'events.id',
                     'events.judul',
@@ -288,13 +288,9 @@ class EventController extends Controller
                     'users.fullname',
                     'users.photo',
                     \DB::raw('DATE(registrations.created_at) as join_date'),
-                    'registrations.is_cancelled as status',
-                    'registrations.is_attended as attended'
+                    'registrations.status'
                 )
                 ->get()
-                ->each(function ($participant) {
-                    $participant->status = $participant->status ? 'cancelled' : 'registered';
-                })
             );
 
         } else {
@@ -314,7 +310,7 @@ class EventController extends Controller
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
-                ->where('registrations.is_cancelled', false)
+                ->where('registrations.status', 'registered')
                 ->join('users', 'registrations.user_id', '=', 'users.id')
                 ->select(
                     'users.fullname',
@@ -342,7 +338,7 @@ class EventController extends Controller
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
                 ->where('registrations.event_id', $id)
-                ->where('registrations.is_cancelled', true)
+                ->where('registrations.status', 'cancelled')
                 ->join('users', 'registrations.user_id', '=', 'users.id')
                 ->select(
                     'users.fullname',
@@ -367,7 +363,6 @@ class EventController extends Controller
 
         $kode = Registration::where('event_id', $id)
             ->where('user_id', $request->user()->id)
-            ->where('is_cancelled', false)
             ->select('id as kode_unik')
             ->first();
 
@@ -414,7 +409,7 @@ class EventController extends Controller
 
         if ($registration) {
 
-            if ($registration->is_cancelled) {
+            if ($registration->status == 'cancelled') {
                 return response([
                     'message' => 'You have cancelled your registration'
                 ], 400);
@@ -464,14 +459,14 @@ class EventController extends Controller
             ], 400);
         }
 
-        if ($registration->is_cancelled) {
+        if ($registration->status == 'cancelled') {
             return response([
                 'message' => 'Already cancelled'
             ], 400);
         }
 
         $registration->update([
-            'is_cancelled' => true
+            'status' => 'cancelled'
         ]);
 
         $event->update([
@@ -723,20 +718,20 @@ class EventController extends Controller
             ], 400);
         }
 
-        if ($registration->is_cancelled) {
+        if ($registration->status == 'cancelled') {
             return response([
                 'message' => 'Registration already cancelled'
             ], 400);
         }
 
-        if ($registration->is_attended) {
+        if ($registration->status == 'attended') {
             return response([
                 'message' => 'Already checked in'
             ], 400);
         }
 
         $registration->update([
-            'is_attended' => true
+            'status' => 'attended'
         ]);
 
         return response([

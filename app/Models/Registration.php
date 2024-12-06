@@ -22,8 +22,7 @@ class Registration extends Model
     protected $fillable = [
         'user_id',
         'event_id',
-        'is_cancelled',
-        'is_attended',
+        'status',
     ];
 
     /**
@@ -42,16 +41,6 @@ class Registration extends Model
 
         });
     }
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'is_cancelled' => 'boolean',
-        'is_attended' => 'boolean',
-    ];
 
     /**
      * Get the user associated with the registration.
