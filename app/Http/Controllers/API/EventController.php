@@ -98,24 +98,36 @@ class EventController extends Controller
         if ($user->is_admin) {
             return response(
                 Event::where('user_id', $user->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
         } else {
-            return response (
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+
+            $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
                 ->where('registrations.user_id', $user->id)
-                ->select(
-                    'events.id',
-                    'events.judul',
-                    'events.foto_event',
-                    \DB::raw('DATE(registrations.created_at) as join_date'),
-                    'registrations.status'
-                )
-                ->get()
-                ->each(function ($event) {
-                    $event->status = $event->status ? 'cancelled' : 'registered';
-                })
+                ->where('registrations.status', 'registered')
+                ->where('events.date', '<', date('Y-m-d'))
+                ->where('events.end_time', '<', date('H:i:s'))
+                ->select('registrations.*')
+                ->get();
+
+            if ($absent) {
+                foreach ($absent as $alpha) {
+                    $alpha->status = 'absent';
+                    $alpha->save();
+                }
+            }
+            return response(
+                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                    ->where('registrations.user_id', $user->id)
+                    ->select(
+                        'events.id',
+                        'events.judul',
+                        'events.foto_event',
+                        \DB::raw('DATE(registrations.created_at) as join_date'),
+                        'registrations.status'
+                    )
+                    ->get()
             );
         }
     }
@@ -145,9 +157,9 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 2)
-                ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->where('user_id', $request->user()->id)
+                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
 
         } else {
@@ -165,9 +177,9 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 3)
-                ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->where('user_id', $request->user()->id)
+                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
 
         } else {
@@ -185,9 +197,9 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 4)
-                ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->where('user_id', $request->user()->id)
+                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
 
         } else {
@@ -206,9 +218,9 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 5)
-                ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->where('user_id', $request->user()->id)
+                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
 
         } else {
@@ -224,18 +236,18 @@ class EventController extends Controller
 
         if (!$request->user()->is_admin) {
 
-            return response (
+            return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                ->where('registrations.user_id', $request->user()->id)
-                ->where('registrations.status', 'registered')
-                ->select(
-                    'events.id',
-                    'events.judul',
-                    'events.foto_event',
-                    \DB::raw('DATE(registrations.created_at) as join_date'),
-                    \DB::raw("'registered' as status")
-                )
-                ->get()
+                    ->where('registrations.user_id', $request->user()->id)
+                    ->where('registrations.status', 'registered')
+                    ->select(
+                        'events.id',
+                        'events.judul',
+                        'events.foto_event',
+                        \DB::raw('DATE(registrations.created_at) as join_date'),
+                        \DB::raw("'registered' as status")
+                    )
+                    ->get()
             );
 
         } else {
@@ -253,16 +265,16 @@ class EventController extends Controller
 
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                ->where('registrations.user_id', $request->user()->id)
-                ->where('registrations.status', 'cancelled')
-                ->select(
-                    'events.id',
-                    'events.judul',
-                    'events.foto_event',
-                    \DB::raw('DATE(registrations.updated_at) as cancel_date'),
-                    \DB::raw("'cancelled' as status")
-                )
-                ->get()
+                    ->where('registrations.user_id', $request->user()->id)
+                    ->where('registrations.status', 'cancelled')
+                    ->select(
+                        'events.id',
+                        'events.judul',
+                        'events.foto_event',
+                        \DB::raw('DATE(registrations.updated_at) as cancel_date'),
+                        \DB::raw("'cancelled' as status")
+                    )
+                    ->get()
             );
 
         } else {
@@ -277,20 +289,34 @@ class EventController extends Controller
     {
 
         $user = $request->user();
+        $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
+            ->where('registrations.event_id', $id)
+            ->where('registrations.status', 'registered')
+            ->where('events.date', '<', date('Y-m-d'))
+            ->where('events.end_time', '<', date('H:i:s'))
+            ->select('registrations.*')
+            ->get();
+
+        if ($absent) {
+            foreach ($absent as $alpha) {
+                $alpha->status = 'absent';
+                $alpha->save();
+            }
+        }
 
         if ($user->is_admin && Event::where('id', $id)->where('user_id', $user->id)->exists()) {
 
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                ->where('registrations.event_id', $id)
-                ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select(
-                    'users.fullname',
-                    'users.photo',
-                    \DB::raw('DATE(registrations.created_at) as join_date'),
-                    'registrations.status'
-                )
-                ->get()
+                    ->where('registrations.event_id', $id)
+                    ->join('users', 'registrations.user_id', '=', 'users.id')
+                    ->select(
+                        'users.fullname',
+                        'users.photo',
+                        \DB::raw('DATE(registrations.created_at) as join_date'),
+                        'registrations.status'
+                    )
+                    ->get()
             );
 
         } else {
@@ -309,16 +335,16 @@ class EventController extends Controller
 
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                ->where('registrations.event_id', $id)
-                ->where('registrations.status', 'registered')
-                ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select(
-                    'users.fullname',
-                    'users.photo',
-                    \DB::raw('DATE(registrations.created_at) as join_date'),
-                    \DB::raw("'registered' as status")
-                )
-                ->get()
+                    ->where('registrations.event_id', $id)
+                    ->where('registrations.status', 'registered')
+                    ->join('users', 'registrations.user_id', '=', 'users.id')
+                    ->select(
+                        'users.fullname',
+                        'users.photo',
+                        \DB::raw('DATE(registrations.created_at) as join_date'),
+                        \DB::raw("'registered' as status")
+                    )
+                    ->get()
             );
 
         } else {
@@ -337,16 +363,16 @@ class EventController extends Controller
 
             return response(
                 Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                ->where('registrations.event_id', $id)
-                ->where('registrations.status', 'cancelled')
-                ->join('users', 'registrations.user_id', '=', 'users.id')
-                ->select(
-                    'users.fullname',
-                    'users.photo',
-                    \DB::raw('DATE(registrations.created_at) as join_date'),
-                    \DB::raw("'cancelled' as status")
-                )
-                ->get()
+                    ->where('registrations.event_id', $id)
+                    ->where('registrations.status', 'cancelled')
+                    ->join('users', 'registrations.user_id', '=', 'users.id')
+                    ->select(
+                        'users.fullname',
+                        'users.photo',
+                        \DB::raw('DATE(registrations.created_at) as join_date'),
+                        \DB::raw("'cancelled' as status")
+                    )
+                    ->get()
             );
 
         } else {
