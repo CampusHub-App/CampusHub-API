@@ -429,10 +429,9 @@ class EventController extends Controller
             ], 401);
         }
 
-
-        if ($event->date < date('Y-m-d') || ($event->date == date('Y-m-d') && $event->start_time <= date('H:i:s'))) {
+        if (date('Y-m-d', strtotime($event->date . ' -1 day')) <= date('Y-m-d')) {
             return response([
-                'message' => 'Event has passed'
+                'message' => 'Registration is closed'
             ], 400);
         }
 
