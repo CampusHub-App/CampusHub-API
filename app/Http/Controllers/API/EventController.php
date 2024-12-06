@@ -289,7 +289,7 @@ class EventController extends Controller
                     'users.photo',
                     \DB::raw('DATE(registrations.created_at) as join_date'),
                     'registrations.is_cancelled as status',
-                    'reigstrations.is_attended as attended'
+                    'registrations.is_attended as attended'
                 )
                 ->get()
                 ->each(function ($participant) {
