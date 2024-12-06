@@ -442,21 +442,24 @@ class EventController extends Controller
 
         if ($registration) {
 
-            if ($registration->status == 'cancelled') {
+            if ($registration->status == 'registered' || $registration->status == 'attended') {
                 return response([
-                    'message' => 'You have cancelled your registration'
+                    'message' => 'Already registered'
                 ], 400);
             }
-
-            return response([
-                'message' => 'Already registered'
-            ], 400);
         }
 
-        Registration::create([
-            'event_id' => $id,
-            'user_id' => $request->user()->id,
-        ]);
+        if (!$registration) {
+            Registration::create([
+                'user_id' => $request->user()->id,
+                'event_id' => $id,
+                'status' => 'registered'
+            ]);
+        } else {
+            $registration->update([
+                'status' => 'registered'
+            ]);
+        }
 
         $event->update([
             'available_slot' => $event->available_slot - 1
