@@ -106,8 +106,8 @@ class EventController extends Controller
             $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
                 ->where('registrations.user_id', $user->id)
                 ->where('registrations.status', 'registered')
-                ->where('events.date', '<', date('Y-m-d'))
-                ->where('events.end_time', '<', date('H:i:s'))
+                ->where('events.date', '<=', date('Y-m-d'))
+                ->where('events.end_time', '<=', date('H:i:s'))
                 ->select('registrations.*')
                 ->get();
 
@@ -292,8 +292,8 @@ class EventController extends Controller
         $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
             ->where('registrations.event_id', $id)
             ->where('registrations.status', 'registered')
-            ->where('events.date', '<', date('Y-m-d'))
-            ->where('events.end_time', '<', date('H:i:s'))
+            ->where('events.date', '<=', date('Y-m-d'))
+            ->where('events.end_time', '<=', date('H:i:s'))
             ->select('registrations.*')
             ->get();
 
@@ -427,6 +427,12 @@ class EventController extends Controller
             return response([
                 'message' => 'Unauthorized'
             ], 401);
+        }
+
+        if ($event->date < date('Y-m-d') && $event->end_time < date('H:i:s')) {
+            return response([
+                'message' => 'Event has passed'
+            ], 400);
         }
 
         $registration = Registration::where('event_id', $id)
@@ -747,6 +753,12 @@ class EventController extends Controller
         if ($registration->status == 'cancelled') {
             return response([
                 'message' => 'Registration already cancelled'
+            ], 400);
+        }
+
+        if ($registration->status == 'absent') {
+            return response([
+                'message' => 'You missed the event'
             ], 400);
         }
 
