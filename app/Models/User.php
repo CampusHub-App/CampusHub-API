@@ -40,7 +40,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-        /**
+    /**
      * Boot method for the model.
      */
     protected static function Boot()
@@ -70,4 +70,15 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
         ];
     }
+
+    public function registrations()
+    {
+        return $this->hasMany(Registration::class, 'user_id');
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'user_id');
+    }
+
 }

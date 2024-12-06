@@ -430,7 +430,7 @@ class EventController extends Controller
         }
 
 
-        if ($event->date <= date('Y-m-d') && $event->start_time <= date('H:i:s')) {
+        if ($event->date < date('Y-m-d') || ($event->date == date('Y-m-d') && $event->start_time <= date('H:i:s'))) {
             return response([
                 'message' => 'Event has passed'
             ], 400);
