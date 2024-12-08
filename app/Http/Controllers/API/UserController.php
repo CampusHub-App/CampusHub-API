@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\User;
 use App\Services\S3Service;
 
 class UserController extends Controller
@@ -49,15 +49,15 @@ class UserController extends Controller
                 ], 500);
             }
 
-            $request->user()->update([
-                'photo' => $photo
+            User::where('id', $request->user()->id)->update([
+                'photo' => $photo,
             ]);
         }
 
-        $request->user()->update([
+        User::where('id', $request->user()->id)->update([
             'fullname' => $request->name,
             'email' => $request->email,
-            'nomor_telepon' => $request->phone
+            'nomor_telepon' => $request->phone,
         ]);
 
         return response([
