@@ -13,7 +13,7 @@ Route::post('/login/admin', [AuthController::class, 'atmin']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::patch('/user', [UserController::class, 'update'])->middleware('auth:sanctum');
+Route::post('/user', [UserController::class, 'update'])->middleware('auth:sanctum');
 
 Route::get('/user', [UserController::class, 'read'])->middleware('auth:sanctum');
 
