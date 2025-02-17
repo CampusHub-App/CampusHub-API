@@ -9,5 +9,4 @@ RUN ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 USER www-data
 RUN composer update
 RUN rm -rf /tmp/* && rm -rf ~/.composer
-RUN ls -al /tmp/
 CMD php artisan serve --host=0.0.0.0
