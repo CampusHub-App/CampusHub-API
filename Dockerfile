@@ -7,6 +7,6 @@ RUN chown -R www-data:www-data /tmp/*
 RUN rm -rf /etc/localtime
 RUN ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 USER www-data
-RUN composer update
+RUN composer install
 RUN rm -rf /tmp/* && rm -rf ~/.composer
 CMD php artisan serve --host=0.0.0.0
