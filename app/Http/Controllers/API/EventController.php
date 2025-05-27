@@ -531,7 +531,7 @@ class EventController extends Controller
         if ($request->hasFile('event_img')) {
             try {
                 $eventImage = $request->file('event_img');
-                $eventImageName = 'event_' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
+                $eventImageName = pathinfo($eventImage->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
                 $eventImagePath = $eventImage->storeAs('events', $eventImageName, 'public');
                 $foto_event = $eventImagePath;
             } catch (\Exception $error) {
@@ -544,7 +544,7 @@ class EventController extends Controller
         if ($request->hasFile('speaker_img')) {
             try {
                 $speakerImage = $request->file('speaker_img');
-                $speakerImageName = 'speaker_' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
+                $speakerImageName = pathinfo($speakerImage->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
                 $speakerImagePath = $speakerImage->storeAs('speakers', $speakerImageName, 'public');
                 $foto_pembicara = $speakerImagePath;
             } catch (\Exception $error) {
@@ -615,7 +615,7 @@ class EventController extends Controller
 
             try {
                 $eventImage = $request->file('event_img');
-                $eventImageName = 'event_' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
+                $eventImageName = pathinfo($eventImage->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
                 $eventImagePath = $eventImage->storeAs('events', $eventImageName, 'public');
                 $foto_event = $eventImagePath;
 
@@ -638,7 +638,7 @@ class EventController extends Controller
 
             try {
                 $speakerImage = $request->file('speaker_img');
-                $speakerImageName = 'speaker_' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
+                $speakerImageName = pathinfo($speakerImage->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
                 $speakerImagePath = $speakerImage->storeAs('speakers', $speakerImageName, 'public');
                 $foto_pembicara = $speakerImagePath;
 

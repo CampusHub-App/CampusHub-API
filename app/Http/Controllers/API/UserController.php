@@ -29,7 +29,7 @@ class UserController extends Controller
 
             try {
                 $photoFile = $request->file('photo');
-                $photoName = 'user_' . Str::random(16) . '.' . $photoFile->getClientOriginalExtension();
+                $photoName = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME) . '-' . Str::random(16) . '.' . $photoFile->getClientOriginalExtension();
                 $photoPath = $photoFile->storeAs('users', $photoName, 'public');
 
                 User::where('id', $request->user()->id)->update([
