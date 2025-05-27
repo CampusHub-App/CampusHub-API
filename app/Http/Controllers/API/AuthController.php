@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -28,7 +30,6 @@ class AuthController extends Controller
         return response([
             'message' => 'User created successfully',
         ]);
-
     }
 
     public function login(Request $request)
@@ -39,90 +40,83 @@ class AuthController extends Controller
             'remember_me' => 'boolean',
         ]);
 
-        $user = User::where('email', $request->email)
-            ->where('is_admin', false)
-            ->first();
+        $credentials = $request->only('email', 'password');
 
-        if ($user) {
+        try {
+            $user = User::where('email', $credentials['email'])
+                ->where('is_admin', false)
+                ->first();
 
-            if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
-
-                $token = $user->createToken('auth_token')->plainTextToken;
-
-                return response([
-                    'message' => 'Login successful',
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ]);
-
-            } else {
-
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
                 return response([
                     'message' => 'Wrong email or password',
                 ], 401);
-
             }
-        } else {
+
+            $token = JWTAuth::fromUser($user);
+
             return response([
-                'message' => 'Wrong email or password',
-            ], 401);
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => config('jwt.ttl') * 60
+            ]);
+        } catch (JWTException $e) {
+            return response([
+                'message' => 'Could not create token',
+            ], 500);
         }
-        ;
     }
 
     public function atmin(Request $request)
     {
-
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
             'remember_me' => 'boolean',
         ]);
 
-        $atmin = User::where('email', $request->email)
-            ->where('is_admin', true)
-            ->first();
+        $credentials = $request->only('email', 'password');
 
-        if ($atmin) {
+        try {
+            $admin = User::where('email', $credentials['email'])
+                ->where('is_admin', true)
+                ->first();
 
-            if (Auth::attempt($request->only('email', 'password'), $request->remember)) {
-
-                $token = $atmin->createToken('auth_token')->plainTextToken;
-
-                return response([
-                    'message' => 'Login successful',
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ]);
-
-            } else {
-
+            if (!$admin || !Hash::check($credentials['password'], $admin->password)) {
                 return response([
                     'message' => 'Wrong email or password',
                 ], 401);
-
             }
-        } else {
+
+            $token = JWTAuth::fromUser($admin);
 
             return response([
-                'message' => 'Wrong email or password',
-            ], 401);
-
+                'message' => 'Login successful',
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => config('jwt.ttl') * 60
+            ]);
+        } catch (JWTException $e) {
+            return response([
+                'message' => 'Could not create token',
+            ], 500);
         }
-
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
 
-        $request->user()->remember_token = null;
-        $request->user()->save();
-        $request->user()->tokens()->delete();
-        redirect('/');
-        return response([
-            'message' => 'Logged out successfully',
-        ]);
-
+            return response([
+                'message' => 'Logged out successfully',
+            ]);
+        } catch (JWTException $e) {
+            return response([
+                'message' => 'Failed to logout, please try again',
+            ], 500);
+        }
     }
 
 }
