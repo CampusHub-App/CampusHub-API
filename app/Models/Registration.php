@@ -14,20 +14,12 @@ class Registration extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'event_id',
         'status',
     ];
 
-    /**
-     * Boot method for the model.
-     */
     protected static function Boot()
     {
         parent::Boot();
@@ -42,17 +34,11 @@ class Registration extends Model
         });
     }
 
-    /**
-     * Get the user associated with the registration.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the event associated with the registration.
-     */
     public function event()
     {
         return $this->belongsTo(Event::class);

@@ -11,18 +11,12 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $keyType = 'string';
     public $incrementing = false;
     protected $primaryKey = 'id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'fullname',
         'email',
@@ -30,19 +24,11 @@ class User extends Authenticatable
         'nomor_telepon',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Boot method for the model.
-     */
     protected static function Boot()
     {
         parent::Boot();
@@ -57,11 +43,6 @@ class User extends Authenticatable
         });
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
