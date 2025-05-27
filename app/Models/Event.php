@@ -69,13 +69,4 @@ class Event extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function getFotoEventUrlAttribute()
-    {
-        return $this->foto_event ? Storage::url($this->foto_event) : null;
-    }
-
-    public function getFotoPembicaraUrlAttribute()
-    {
-        return $this->foto_pembicara ? Storage::url($this->foto_pembicara) : null;
-    }
 }

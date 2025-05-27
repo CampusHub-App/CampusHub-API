@@ -62,9 +62,4 @@ class User extends Authenticatable
         return $this->hasMany(Event::class, 'user_id');
     }
 
-    public function getPhotoUrlAttribute()
-    {
-        return $this->photo ? Storage::url($this->photo) : null;
-    }
-
 }
