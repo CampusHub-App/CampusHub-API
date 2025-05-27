@@ -5,21 +5,14 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Services\S3Service;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
 
-    protected $s3;
-
-    public function __construct()
-    {
-        $this->s3 = new S3Service();
-    }
-
     public function update(Request $request)
     {
-
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email,' . $request->user()->id,
@@ -28,30 +21,25 @@ class UserController extends Controller
         ]);
 
         if ($request->hasFile('photo')) {
-
             if ($request->user()->photo) {
-
-                try {
-                    $this->s3->deleteImg('users', $request->user()->photo);
-                } catch (\Exception $error) {
-                    return response([
-                        'message' => $error->getMessage(),
-                    ], 500);
+                if (Storage::disk('public')->exists($request->user()->photo)) {
+                    Storage::disk('public')->delete($request->user()->photo);
                 }
-
             }
 
             try {
-                $photo = $this->s3->uploadImg('users', $request->file('photo'));
+                $photoFile = $request->file('photo');
+                $photoName = 'user_' . Str::random(16) . '.' . $photoFile->getClientOriginalExtension();
+                $photoPath = $photoFile->storeAs('users', $photoName, 'public');
+
+                User::where('id', $request->user()->id)->update([
+                    'photo' => $photoPath,
+                ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => $error->getMessage(),
+                    'message' => 'Error uploading photo: ' . $error->getMessage(),
                 ], 500);
             }
-
-            User::where('id', $request->user()->id)->update([
-                'photo' => $photo,
-            ]);
         }
 
         User::where('id', $request->user()->id)->update([
@@ -63,7 +51,6 @@ class UserController extends Controller
         return response([
             'message' => 'Profile updated successfully',
         ]);
-
     }
 
     public function read(Request $request)
@@ -93,9 +80,16 @@ class UserController extends Controller
 
     public function delete(Request $request)
     {
+        if ($request->user()->photo) {
+            if (Storage::disk('public')->exists($request->user()->photo)) {
+                Storage::disk('public')->delete($request->user()->photo);
+            }
+        }
+
         $request->user()->tokens()->delete();
         $request->user()->delete();
         redirect('/');
+        
         return response([
             'message' => 'User deleted successfully',
         ]);

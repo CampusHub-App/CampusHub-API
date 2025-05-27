@@ -7,17 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Category;
 use App\Models\Registration;
-use App\Services\S3Service;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
-
-    protected $s3;
-
-    public function __construct()
-    {
-        $this->s3 = new S3Service();
-    }
 
     public function index()
     {
@@ -516,7 +510,6 @@ class EventController extends Controller
 
     public function create(Request $request)
     {
-
         $request->validate([
             'title' => 'required',
             'desc' => 'required',
@@ -532,30 +525,33 @@ class EventController extends Controller
             'slot' => 'required|integer|min:1',
         ]);
 
-
+        $foto_event = null;
+        $foto_pembicara = null;
 
         if ($request->hasFile('event_img')) {
-
             try {
-                $foto_event = $this->s3->uploadImg('events', $request->file('event_img'));
+                $eventImage = $request->file('event_img');
+                $eventImageName = 'event_' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
+                $eventImagePath = $eventImage->storeAs('events', $eventImageName, 'public');
+                $foto_event = $eventImagePath;
             } catch (\Exception $error) {
                 return response([
-                    'message' => $error->getMessage(),
+                    'message' => 'Error uploading event image: ' . $error->getMessage(),
                 ], 500);
             }
-
         }
 
         if ($request->hasFile('speaker_img')) {
-
             try {
-                $foto_pembicara = $this->s3->uploadImg('speakers', $request->file('speaker_img'));
+                $speakerImage = $request->file('speaker_img');
+                $speakerImageName = 'speaker_' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
+                $speakerImagePath = $speakerImage->storeAs('speakers', $speakerImageName, 'public');
+                $foto_pembicara = $speakerImagePath;
             } catch (\Exception $error) {
                 return response([
-                    'message' => $error->getMessage(),
+                    'message' => 'Error uploading speaker image: ' . $error->getMessage(),
                 ], 500);
             }
-
         }
 
         Event::create([
@@ -581,7 +577,6 @@ class EventController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $event = Event::find($id);
 
         if (!$event) {
@@ -612,55 +607,49 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('event_img')) {
-
             if ($event->foto_event) {
-                try {
-                    $this->s3->deleteImg('events', $event->foto_event);
-                } catch (\Exception $error) {
-                    return response([
-                        'message' => $error->getMessage(),
-                    ], 500);
+                if (Storage::disk('public')->exists($event->foto_event)) {
+                    Storage::disk('public')->delete($event->foto_event);
                 }
             }
 
             try {
-                $foto_event = $this->s3->uploadImg('events', $request->file('event_img'));
+                $eventImage = $request->file('event_img');
+                $eventImageName = 'event_' . Str::random(16) . '.' . $eventImage->getClientOriginalExtension();
+                $eventImagePath = $eventImage->storeAs('events', $eventImageName, 'public');
+                $foto_event = $eventImagePath;
 
                 $event->update([
                     'foto_event' => $foto_event,
                 ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => $error->getMessage(),
+                    'message' => 'Error uploading event image: ' . $error->getMessage(),
                 ], 500);
             }
-
         }
 
         if ($request->hasFile('speaker_img')) {
-
             if ($event->foto_pembicara) {
-                try {
-                    $this->s3->deleteImg('speakers', $event->foto_pembicara);
-                } catch (\Exception $error) {
-                    return response([
-                        'message' => $error->getMessage(),
-                    ], 500);
+                if (Storage::disk('public')->exists($event->foto_pembicara)) {
+                    Storage::disk('public')->delete($event->foto_pembicara);
                 }
             }
 
             try {
-                $foto_pembicara = $this->s3->uploadImg('speakers', $request->file('speaker_img'));
+                $speakerImage = $request->file('speaker_img');
+                $speakerImageName = 'speaker_' . Str::random(16) . '.' . $speakerImage->getClientOriginalExtension();
+                $speakerImagePath = $speakerImage->storeAs('speakers', $speakerImageName, 'public');
+                $foto_pembicara = $speakerImagePath;
 
                 $event->update([
                     'foto_pembicara' => $foto_pembicara,
                 ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => $error->getMessage(),
+                    'message' => 'Error uploading speaker image: ' . $error->getMessage(),
                 ], 500);
             }
-
         }
 
         $event->update([
@@ -679,12 +668,10 @@ class EventController extends Controller
         return response([
             'message' => 'Event updated successfully'
         ]);
-
     }
 
     public function delete(Request $request, $id)
     {
-
         $event = Event::find($id);
 
         if (!$event) {
@@ -700,22 +687,14 @@ class EventController extends Controller
         }
 
         if ($event->foto_event) {
-            try {
-                $this->s3->deleteImg('events', $event->foto_event);
-            } catch (\Exception $error) {
-                return response([
-                    'message' => $error->getMessage(),
-                ], 500);
+            if (Storage::disk('public')->exists($event->foto_event)) {
+                Storage::disk('public')->delete($event->foto_event);
             }
         }
 
         if ($event->foto_pembicara) {
-            try {
-                $this->s3->deleteImg('speakers', $event->foto_pembicara);
-            } catch (\Exception $error) {
-                return response([
-                    'message' => $error->getMessage(),
-                ], 500);
+            if (Storage::disk('public')->exists($event->foto_pembicara)) {
+                Storage::disk('public')->delete($event->foto_pembicara);
             }
         }
 
@@ -724,7 +703,6 @@ class EventController extends Controller
         return response([
             'message' => 'Event deleted successfully'
         ]);
-
     }
 
     public function checkin(Request $request, $id)

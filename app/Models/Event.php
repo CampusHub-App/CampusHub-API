@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Event extends Model
 {
@@ -66,5 +67,15 @@ class Event extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getFotoEventUrlAttribute()
+    {
+        return $this->foto_event ? Storage::url($this->foto_event) : null;
+    }
+
+    public function getFotoPembicaraUrlAttribute()
+    {
+        return $this->foto_pembicara ? Storage::url($this->foto_pembicara) : null;
     }
 }
