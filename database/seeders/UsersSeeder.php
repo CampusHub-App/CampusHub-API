@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
                 'fullname' => 'Hasbi Mizan Azzami',
                 'email' => 'hasbi@gmail.com',
                 'password' => bcrypt('12345678'),
-                'photo' => 'users/hasbi.jpeg',
+                'photo' => 'users/hasbi.jpg',
                 'nomor_telepon' => '081234567890',
                 'is_admin' => true,
             ],
