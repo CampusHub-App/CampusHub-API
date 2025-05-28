@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
 {
@@ -67,12 +69,16 @@ class UserController extends Controller
 
         $request->user()->update(
             ['password' => bcrypt($request->password)],
-            ['remember_token' => null]
         );
 
-        $request->user()->tokens()->delete();
-        redirect('/');
-
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+        } catch (JWTException $e) {
+            return response([
+                'message' => 'Could not invalidate token',
+            ], 500);
+        }
+        
         return response([
             'message' => 'Password updated successfully, please relogin',
         ]);
@@ -86,9 +92,15 @@ class UserController extends Controller
             }
         }
 
-        $request->user()->tokens()->delete();
+        try {
+            JWTAuth::invalidate(JWTAuth::getToken());
+        } catch (JWTException $e) {
+            return response([
+                'message' => 'Could not invalidate token',
+            ], 500);
+        }
+        
         $request->user()->delete();
-        redirect('/');
         
         return response([
             'message' => 'User deleted successfully',

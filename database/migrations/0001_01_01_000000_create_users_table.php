@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('photo', 500)->nullable();
             $table->string('nomor_telepon')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('remember_token', 500)->nullable();
             $table->timestamps();
         });
     }

@@ -41,6 +41,7 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
+        $remember = $request->input('remember_me', false);
 
         try {
             $user = User::where('email', $credentials['email'])
@@ -53,13 +54,20 @@ class AuthController extends Controller
                 ], 401);
             }
 
+            if ($remember) {
+                JWTAuth::factory()->setTTL(43800);
+            }
+
             $token = JWTAuth::fromUser($user);
+            $ttl = $remember ? 43800 : config('jwt.ttl');
+            $ttl *= 60;
 
             return response([
                 'message' => 'Login successful',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => $ttl,
+                'remember_me' => $remember
             ]);
         } catch (JWTException $e) {
             return response([
@@ -77,6 +85,7 @@ class AuthController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
+        $remember = $request->input('remember_me', false);
 
         try {
             $admin = User::where('email', $credentials['email'])
@@ -89,13 +98,23 @@ class AuthController extends Controller
                 ], 401);
             }
 
+            // Set custom TTL if remember_me is true
+            if ($remember) {
+                $customTTL = 60 * 24 * 30; // 30 days in minutes
+                JWTAuth::factory()->setTTL($customTTL);
+            }
+
             $token = JWTAuth::fromUser($admin);
+            
+            // Get the actual TTL that was used
+            $ttl = $remember ? 60 * 24 * 30 : config('jwt.ttl');
 
             return response([
                 'message' => 'Login successful',
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'expires_in' => config('jwt.ttl') * 60
+                'expires_in' => $ttl * 60,
+                'remember_me' => $remember
             ]);
         } catch (JWTException $e) {
             return response([
