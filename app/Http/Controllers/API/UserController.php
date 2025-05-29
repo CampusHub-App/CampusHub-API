@@ -93,17 +93,17 @@ class UserController extends Controller
         }
 
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            JWTAuth::parseToken()->invalidate();
         } catch (JWTException $e) {
             return response([
-                'message' => 'Could not invalidate token',
+                'message' => 'Gagal menghapus token, silahkan coba lagi nanti.',
             ], 500);
         }
         
         $request->user()->delete();
         
         return response([
-            'message' => 'User deleted successfully',
+            'message' => 'Akun berhasil dihapus',
         ]);
     }
 

@@ -139,7 +139,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
     }
@@ -159,7 +159,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
 
         }
     }
@@ -179,7 +179,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
     }
@@ -199,7 +199,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
 
         }
 
@@ -220,7 +220,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
     }
@@ -247,7 +247,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
     }
@@ -274,7 +274,7 @@ class EventController extends Controller
         } else {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
     }
@@ -317,7 +317,7 @@ class EventController extends Controller
 
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
 
         }
     }
@@ -345,7 +345,7 @@ class EventController extends Controller
 
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
 
         }
     }
@@ -373,7 +373,7 @@ class EventController extends Controller
 
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
 
         }
     }
@@ -390,7 +390,7 @@ class EventController extends Controller
         if ($request->user()->is_admin) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         } else if (!$kode) {
             return response([
                 'message' => 'You are not registered to this event'
@@ -421,7 +421,7 @@ class EventController extends Controller
         if ($request->user()->is_admin) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
         if (date('Y-m-d', strtotime($event->date . ' -1 day')) <= date('Y-m-d')) {
@@ -478,7 +478,7 @@ class EventController extends Controller
         if ($event->user_id == $request->user()->id) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
         $registration = Registration::where('event_id', $id)->where('user_id', $request->user()->id)->first();
@@ -588,7 +588,7 @@ class EventController extends Controller
         if ($event->user_id != $request->user()->id) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
         $request->validate([
@@ -683,7 +683,7 @@ class EventController extends Controller
         if ($event->user_id != $request->user()->id) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
         if ($event->foto_event) {
@@ -719,7 +719,7 @@ class EventController extends Controller
         if (!$request->user()->is_admin) {
             return response([
                 'message' => 'Unauthorized'
-            ], 401);
+            ], 403);
         }
 
         $registration = Registration::where('id', $request->kode)

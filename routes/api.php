@@ -5,72 +5,52 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\EventController;
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login/user', [AuthController::class, 'login']);
+    Route::post('/login/admin', [AuthController::class, 'atmin']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+    Route::patch('/change-password', [UserController::class, 'change'])->middleware('auth:api');
+});
 
-Route::post('/login/user', [AuthController::class, 'login']);
+Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
+    Route::post('/', [UserController::class, 'update']);
+    Route::get('/', [UserController::class, 'read']);
+    Route::delete('/', [UserController::class, 'delete']);
+});
 
-Route::post('/login/admin', [AuthController::class, 'atmin']);
+Route::group(['prefix' => 'events'], function () {
+    Route::get('/all', [EventController::class, 'index']);
+    Route::get('/webinar', [EventController::class, 'webinar']);
+    Route::get('/workshop', [EventController::class, 'workshop']);
+    Route::get('/seminar', [EventController::class, 'seminar']);
+    Route::get('/sertifikasi', [EventController::class, 'sertifikasi']);
+    Route::get('/kuliah-tamu', [EventController::class, 'kuliahtamu']);
+    Route::get('/{id}/view', [EventController::class, 'details']);
+    Route::get('/categories', [EventController::class, 'categories']);
+});
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+Route::group(['prefix' => 'my-events', 'middleware' => 'auth:api'], function () {
+    Route::get('/all', [EventController::class, 'mine']);
+    Route::get('/registered', [EventController::class, 'registered']);
+    Route::get('/cancelled', [EventController::class, 'cancelled']);
+    Route::get('/webinar', [EventController::class, 'mywebinar']);
+    Route::get('/workshop', [EventController::class, 'myworkshop']);
+    Route::get('/seminar', [EventController::class, 'myseminar']);
+    Route::get('/sertifikasi', [EventController::class, 'mysertifikasi']);
+    Route::get('/kuliah-tamu', [EventController::class, 'mykuliahtamu']);
+    Route::get('/{id}/status', [EventController::class, 'status']);
+    Route::get('/{id}/status', [EventController::class, 'status']);
+});
 
-Route::post('/user', [UserController::class, 'update'])->middleware('auth:api');
-
-Route::get('/user', [UserController::class, 'read'])->middleware('auth:api');
-
-Route::delete('/user', [UserController::class, 'delete'])->middleware('auth:api');
-
-Route::patch('/change-password', [UserController::class, 'change'])->middleware('auth:api');
-
-Route::get('/events/all', [EventController::class, 'index']);
-
-Route::get('/events/webinar', [EventController::class, 'webinar']);
-
-Route::get('/events/workshop', [EventController::class, 'workshop']);
-
-Route::get('/events/seminar', [EventController::class, 'seminar']);
-
-Route::get('/events/sertifikasi', [EventController::class, 'sertifikasi']);
-
-Route::get('/events/kuliah-tamu', [EventController::class, 'kuliahtamu']);
-
-Route::get('/events/{id}/view', [EventController::class, 'details']);
-
-Route::get('/categories', [EventController::class, 'categories']);
-
-Route::get('/my-events/all', [EventController::class, 'mine'])->middleware('auth:api');
-
-Route::get('/my-events/registered', [EventController::class, 'registered'])->middleware('auth:api');
-
-Route::get('/my-events/cancelled', [EventController::class, 'cancelled'])->middleware('auth:api');
-
-Route::get('/my-events/webinar', [EventController::class, 'mywebinar'])->middleware('auth:api');
-
-Route::get('/my-events/workshop', [EventController::class, 'myworkshop'])->middleware('auth:api');
-
-Route::get('/my-events/seminar', [EventController::class, 'myseminar'])->middleware('auth:api');
-
-Route::get('/my-events/sertifikasi', [EventController::class, 'mysertifikasi'])->middleware('auth:api');
-
-Route::get('/my-events/kuliah-tamu', [EventController::class, 'mykuliahtamu'])->middleware('auth:api');
-
-Route::get('/events/{id}/participants/all', [EventController::class, 'participants'])->middleware('auth:api');
-
-Route::get('/events/{id}/participants/cancelled', [EventController::class, 'absent'])->middleware('auth:api');
-
-Route::get('/events/{id}/participants/registered', [EventController::class, 'attend'])->middleware('auth:api');
-
-Route::get('/events/{id}/kode-unik', [EventController::class, 'kode'])->middleware('auth:api');
-
-Route::post('/events/{id}/register', [EventController::class, 'register'])->middleware('auth:api');
-
-Route::post('/events/{id}/cancel', [EventController::class, 'cancel'])->middleware('auth:api');
-
-Route::post('/events', [EventController::class, 'create'])->middleware('auth:api');
-
-Route::post('/events/{id}/edit', [EventController::class, 'update'])->middleware('auth:api');
-
-Route::delete('/events/{id}', [EventController::class, 'delete'])->middleware('auth:api');
-
-Route::get('/my-events/{id}/status', [EventController::class, 'status'])->middleware('auth:api');
-
-Route::post('/my-events/{id}/check-in', [EventController::class, 'checkin'])->middleware('auth:api');
+Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
+    Route::get('/{id}/participants', [EventController::class, 'participants']);
+    Route::get('/{id}/participants/cancelled', [EventController::class, 'absent']);
+    Route::get('/{id}/participants/registered', [EventController::class, 'attend']);
+    Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
+    Route::post('/{id}/register', [EventController::class, 'register']);
+    Route::post('/{id}/cancel', [EventController::class, 'cancel']);
+    Route::post('/', [EventController::class, 'create']);
+    Route::post('/{id}/edit', [EventController::class, 'update']);
+    Route::delete('/{id}', [EventController::class, 'delete']);
+});

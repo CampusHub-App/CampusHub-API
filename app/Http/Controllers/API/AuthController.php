@@ -44,34 +44,30 @@ class AuthController extends Controller
         $remember = $request->input('remember_me', false);
 
         try {
-            $user = User::where('email', $credentials['email'])
-                ->where('is_admin', false)
-                ->first();
-
-            if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response([
-                    'message' => 'Wrong email or password',
+                    'message' => 'Email atau password salah',
                 ], 401);
             }
 
-            if ($remember) {
-                JWTAuth::factory()->setTTL(43800);
+            $user = JWTAuth::user();
+            if ($user->is_admin) {
+                return response([
+                    'message' => 'Anda tidak boleh mengakses halaman ini.',
+                ], 403);
             }
 
-            $token = JWTAuth::fromUser($user);
             $ttl = $remember ? 43800 : config('jwt.ttl');
-            $ttl *= 60;
+            JWTAuth::factory()->setTTL($ttl);
+            $token = JWTAuth::fromUser($user);
 
             return response([
                 'message' => 'Login successful',
                 'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => $ttl,
-                'remember_me' => $remember
             ]);
         } catch (JWTException $e) {
             return response([
-                'message' => 'Could not create token',
+                'message' => 'Gangguan pada server, silahkan coba lagi nanti.',
             ], 500);
         }
     }
@@ -88,37 +84,30 @@ class AuthController extends Controller
         $remember = $request->input('remember_me', false);
 
         try {
-            $admin = User::where('email', $credentials['email'])
-                ->where('is_admin', true)
-                ->first();
-
-            if (!$admin || !Hash::check($credentials['password'], $admin->password)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 return response([
-                    'message' => 'Wrong email or password',
+                    'message' => 'Email atau password salah',
                 ], 401);
             }
 
-            // Set custom TTL if remember_me is true
-            if ($remember) {
-                $customTTL = 60 * 24 * 30; // 30 days in minutes
-                JWTAuth::factory()->setTTL($customTTL);
+            $admin = JWTAuth::user();
+            if (!$admin->is_admin) {
+                return response([
+                    'message' => 'Anda tidak boleh mengakses halaman ini.',
+                ], 403);
             }
 
+            $ttl = $remember ? 43800 : config('jwt.ttl');
+            JWTAuth::factory()->setTTL($ttl);
             $token = JWTAuth::fromUser($admin);
-            
-            // Get the actual TTL that was used
-            $ttl = $remember ? 60 * 24 * 30 : config('jwt.ttl');
 
             return response([
                 'message' => 'Login successful',
                 'access_token' => $token,
-                'token_type' => 'Bearer',
-                'expires_in' => $ttl * 60,
-                'remember_me' => $remember
             ]);
         } catch (JWTException $e) {
             return response([
-                'message' => 'Could not create token',
+                'message' => 'Gangguan pada server, silahkan coba lagi nanti.',
             ], 500);
         }
     }
@@ -126,14 +115,14 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            JWTAuth::parseToken()->invalidate();
 
             return response([
-                'message' => 'Logged out successfully',
+                'message' => 'Berhasil Logout',
             ]);
         } catch (JWTException $e) {
             return response([
-                'message' => 'Failed to logout, please try again',
+                'message' => 'Gagal logout, silahkan cek koneksi internet anda atau hapus cache browser anda.',
             ], 500);
         }
     }
