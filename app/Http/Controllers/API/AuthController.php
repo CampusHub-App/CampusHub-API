@@ -28,7 +28,7 @@ class AuthController extends Controller
         ]);
 
         return response([
-            'message' => 'User created successfully',
+            'message' => 'Pengguna berhasil dibuat',
         ]);
     }
 
@@ -62,7 +62,7 @@ class AuthController extends Controller
             $token = JWTAuth::fromUser($user);
 
             return response([
-                'message' => 'Login successful',
+                'message' => 'Login berhasil',
                 'access_token' => $token,
             ]);
         } catch (JWTException $e) {
@@ -102,7 +102,7 @@ class AuthController extends Controller
             $token = JWTAuth::fromUser($admin);
 
             return response([
-                'message' => 'Login successful',
+                'message' => 'Login berhasil',
                 'access_token' => $token,
             ]);
         } catch (JWTException $e) {

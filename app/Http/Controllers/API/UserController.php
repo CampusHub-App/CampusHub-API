@@ -39,7 +39,7 @@ class UserController extends Controller
                 ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => 'Error uploading photo: ' . $error->getMessage(),
+                    'message' => 'Gagal mengunggah foto: ' . $error->getMessage(),
                 ], 500);
             }
         }
@@ -51,7 +51,7 @@ class UserController extends Controller
         ]);
 
         return response([
-            'message' => 'Profile updated successfully',
+            'message' => 'Profil berhasil diperbarui',
         ]);
     }
 
@@ -72,15 +72,15 @@ class UserController extends Controller
         );
 
         try {
-            JWTAuth::invalidate(JWTAuth::getToken());
+            JWTAuth::parseToken()->invalidate();
         } catch (JWTException $e) {
             return response([
-                'message' => 'Could not invalidate token',
+                'message' => 'Terjadi kesalahan pada server, silahkan coba lagi nanti.',
             ], 500);
         }
         
         return response([
-            'message' => 'Password updated successfully, please relogin',
+            'message' => 'Password berhasil diperbarui',
         ]);
     }
 
@@ -96,7 +96,7 @@ class UserController extends Controller
             JWTAuth::parseToken()->invalidate();
         } catch (JWTException $e) {
             return response([
-                'message' => 'Gagal menghapus token, silahkan coba lagi nanti.',
+                'message' => 'Terjadi kesalahan pada server, silahkan coba lagi nanti.',
             ], 500);
         }
         
