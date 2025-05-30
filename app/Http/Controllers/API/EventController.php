@@ -727,7 +727,7 @@ class EventController extends Controller
 
         if (!$registration) {
             return response([
-                'message' => 'Tidak terdaftar'
+                'message' => 'Kode tidak valid'
             ], 400);
         }
 
@@ -739,13 +739,13 @@ class EventController extends Controller
 
         if ($registration->status == 'absent') {
             return response([
-                'message' => 'Anda melewatkan event ini'
+                'message' => 'Anda sudah melewatkan event ini'
             ], 400);
         }
 
         if ($registration->status == 'attended') {
             return response([
-                'message' => 'Sudah check-in'
+                'message' => 'Anda sudah pernah check-in'
             ], 400);
         }
 
@@ -754,7 +754,8 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Berhasil check-in'
+            'message' => 'Berhasil check-in',
+            'name' => $registration->user->fullname
         ]);
 
     }

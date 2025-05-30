@@ -52,5 +52,5 @@ Route::group(['prefix' => 'my-events', 'middleware' => 'auth:api'], function () 
     Route::get('/sertifikasi', [EventController::class, 'mysertifikasi']);
     Route::get('/kuliah-tamu', [EventController::class, 'mykuliahtamu']);
     Route::get('/{id}/status', [EventController::class, 'status']);
-    Route::get('/{id}/status', [EventController::class, 'status']);
+    Route::post('/{id}/check-in', [EventController::class, 'checkin']);
 });
