@@ -80,7 +80,7 @@ class EventController extends Controller
             return response($event->makeHidden(['user_id', 'created_at', 'updated_at']));
         } else {
             return response([
-                'message' => 'Event not found',
+                'message' => 'Event tidak ditemukan',
             ], 404);
         }
     }
@@ -138,7 +138,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -158,7 +158,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
 
         }
@@ -178,7 +178,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -198,7 +198,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
 
         }
@@ -212,14 +212,13 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 5)
-                    ->where('user_id', $request->user()->id)
-                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
+                    ->where('user_id', $request->user()->id)                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                ->get()
             );
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -246,7 +245,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -273,7 +272,7 @@ class EventController extends Controller
 
         } else {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -316,7 +315,7 @@ class EventController extends Controller
         } else {
 
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
 
         }
@@ -344,7 +343,7 @@ class EventController extends Controller
         } else {
 
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
 
         }
@@ -372,7 +371,7 @@ class EventController extends Controller
         } else {
 
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
 
         }
@@ -389,11 +388,11 @@ class EventController extends Controller
 
         if ($request->user()->is_admin) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         } else if (!$kode) {
             return response([
-                'message' => 'You are not registered to this event'
+                'message' => 'Anda tidak terdaftar pada event ini'
             ], 401);
         } else {
             return response($kode);
@@ -408,25 +407,25 @@ class EventController extends Controller
 
         if (!$event) {
             return response([
-                'message' => 'Event not found'
+                'message' => 'Event tidak ditemukan'
             ], 404);
         }
 
         if ($event->available_slot <= 0) {
             return response([
-                'message' => 'Event is already full'
+                'message' => 'Event sudah penuh'
             ], 400);
         }
 
         if ($request->user()->is_admin) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
         if (date('Y-m-d', strtotime($event->date . ' -1 day')) <= date('Y-m-d')) {
             return response([
-                'message' => 'Registration is closed'
+                'message' => 'Pendaftaran telah ditutup'
             ], 400);
         }
 
@@ -438,7 +437,7 @@ class EventController extends Controller
 
             if ($registration->status == 'registered' || $registration->status == 'attended') {
                 return response([
-                    'message' => 'Already registered'
+                    'message' => 'Sudah terdaftar'
                 ], 400);
             }
         }
@@ -460,7 +459,7 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Registered successfully'
+            'message' => 'Berhasil mendaftar'
         ]);
     }
 
@@ -471,13 +470,13 @@ class EventController extends Controller
 
         if (!$event) {
             return response([
-                'message' => 'Event not found'
+                'message' => 'Event tidak ditemukan'
             ], 404);
         }
 
         if ($event->user_id == $request->user()->id) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -485,13 +484,13 @@ class EventController extends Controller
 
         if (!$registration) {
             return response([
-                'message' => 'Not registered'
+                'message' => 'Belum terdaftar'
             ], 400);
         }
 
         if ($registration->status == 'cancelled') {
             return response([
-                'message' => 'Already cancelled'
+                'message' => 'Sudah dibatalkan'
             ], 400);
         }
 
@@ -504,7 +503,7 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Cancelled successfully'
+            'message' => 'Berhasil dibatalkan'
         ]);
     }
 
@@ -536,7 +535,7 @@ class EventController extends Controller
                 $foto_event = $eventImagePath;
             } catch (\Exception $error) {
                 return response([
-                    'message' => 'Error uploading event image: ' . $error->getMessage(),
+                    'message' => 'Gagal mengunggah gambar event: ' . $error->getMessage(),
                 ], 500);
             }
         }
@@ -549,7 +548,7 @@ class EventController extends Controller
                 $foto_pembicara = $speakerImagePath;
             } catch (\Exception $error) {
                 return response([
-                    'message' => 'Error uploading speaker image: ' . $error->getMessage(),
+                    'message' => 'Gagal mengunggah gambar pembicara: ' . $error->getMessage(),
                 ], 500);
             }
         }
@@ -571,7 +570,7 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Event created successfully'
+            'message' => 'Event berhasil dibuat'
         ]);
     }
 
@@ -581,13 +580,13 @@ class EventController extends Controller
 
         if (!$event) {
             return response([
-                'message' => 'Event not found'
+                'message' => 'Event tidak ditemukan'
             ], 404);
         }
 
         if ($event->user_id != $request->user()->id) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -624,7 +623,7 @@ class EventController extends Controller
                 ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => 'Error uploading event image: ' . $error->getMessage(),
+                    'message' => 'Gagal mengunggah gambar event: ' . $error->getMessage(),
                 ], 500);
             }
         }
@@ -647,7 +646,7 @@ class EventController extends Controller
                 ]);
             } catch (\Exception $error) {
                 return response([
-                    'message' => 'Error uploading speaker image: ' . $error->getMessage(),
+                    'message' => 'Gagal mengunggah gambar pembicara: ' . $error->getMessage(),
                 ], 500);
             }
         }
@@ -666,7 +665,7 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Event updated successfully'
+            'message' => 'Event berhasil diperbarui'
         ]);
     }
 
@@ -676,13 +675,13 @@ class EventController extends Controller
 
         if (!$event) {
             return response([
-                'message' => 'Event not found'
+                'message' => 'Event tidak ditemukan'
             ], 404);
         }
 
         if ($event->user_id != $request->user()->id) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -701,7 +700,7 @@ class EventController extends Controller
         $event->delete();
 
         return response([
-            'message' => 'Event deleted successfully'
+            'message' => 'Event berhasil dihapus'
         ]);
     }
 
@@ -712,13 +711,13 @@ class EventController extends Controller
 
         if (!$event) {
             return response([
-                'message' => 'Event not found'
+                'message' => 'Event tidak ditemukan'
             ], 404);
         }
 
         if (!$request->user()->is_admin) {
             return response([
-                'message' => 'Unauthorized'
+                'message' => 'Tidak diizinkan'
             ], 403);
         }
 
@@ -728,25 +727,25 @@ class EventController extends Controller
 
         if (!$registration) {
             return response([
-                'message' => 'Not registered'
+                'message' => 'Tidak terdaftar'
             ], 400);
         }
 
         if ($registration->status == 'cancelled') {
             return response([
-                'message' => 'Registration already cancelled'
+                'message' => 'Pendaftaran sudah dibatalkan'
             ], 400);
         }
 
         if ($registration->status == 'absent') {
             return response([
-                'message' => 'You missed the event'
+                'message' => 'Anda melewatkan event ini'
             ], 400);
         }
 
         if ($registration->status == 'attended') {
             return response([
-                'message' => 'Already checked in'
+                'message' => 'Sudah check-in'
             ], 400);
         }
 
@@ -755,7 +754,7 @@ class EventController extends Controller
         ]);
 
         return response([
-            'message' => 'Checked in successfully'
+            'message' => 'Berhasil check-in'
         ]);
 
     }
@@ -769,7 +768,7 @@ class EventController extends Controller
 
         if (!$registration) {
             return response([
-                'message' => 'Not registered'
+                'message' => 'Tidak terdaftar'
             ], 400);
         } else {
             return response([
