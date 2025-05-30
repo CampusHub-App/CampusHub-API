@@ -38,7 +38,7 @@ Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
     Route::post('/{id}/register', [EventController::class, 'register']);
     Route::post('/{id}/cancel', [EventController::class, 'cancel']);
     Route::post('/', [EventController::class, 'create']);
-    Route::post('/{id}/edit', [EventController::class, 'update']);
+    Route::put('/{id}/edit', [EventController::class, 'update']);
     Route::delete('/{id}', [EventController::class, 'delete']);
 });
 
