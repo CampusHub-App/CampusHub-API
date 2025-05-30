@@ -145,7 +145,7 @@ class EventsSeeder extends Seeder
             [
                 'id' => 'KudupxXgSCfO',
                 'judul' => 'Sharing Knowledge: Immersive Techs For Education Field',
-                'date' => '2024-12-15',
+                'date' => '2025-12-15',
                 'start_time' => '10:00',
                 'end_time' => '16:00',
                 'foto_event' => 'events/10.jpg',
