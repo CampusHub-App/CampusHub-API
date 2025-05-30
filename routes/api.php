@@ -30,6 +30,18 @@ Route::group(['prefix' => 'events'], function () {
     Route::get('/categories', [EventController::class, 'categories']);
 });
 
+Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
+    Route::get('/{id}/participants', [EventController::class, 'participants']);
+    Route::get('/{id}/participants/cancelled', [EventController::class, 'absent']);
+    Route::get('/{id}/participants/registered', [EventController::class, 'attend']);
+    Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
+    Route::post('/{id}/register', [EventController::class, 'register']);
+    Route::post('/{id}/cancel', [EventController::class, 'cancel']);
+    Route::post('/', [EventController::class, 'create']);
+    Route::post('/{id}/edit', [EventController::class, 'update']);
+    Route::delete('/{id}', [EventController::class, 'delete']);
+});
+
 Route::group(['prefix' => 'my-events', 'middleware' => 'auth:api'], function () {
     Route::get('/all', [EventController::class, 'mine']);
     Route::get('/registered', [EventController::class, 'registered']);
@@ -41,16 +53,4 @@ Route::group(['prefix' => 'my-events', 'middleware' => 'auth:api'], function () 
     Route::get('/kuliah-tamu', [EventController::class, 'mykuliahtamu']);
     Route::get('/{id}/status', [EventController::class, 'status']);
     Route::get('/{id}/status', [EventController::class, 'status']);
-});
-
-Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
-    Route::get('/{id}/participants', [EventController::class, 'participants']);
-    Route::get('/{id}/participants/cancelled', [EventController::class, 'absent']);
-    Route::get('/{id}/participants/registered', [EventController::class, 'attend']);
-    Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
-    Route::post('/{id}/register', [EventController::class, 'register']);
-    Route::post('/{id}/cancel', [EventController::class, 'cancel']);
-    Route::post('/', [EventController::class, 'create']);
-    Route::post('/{id}/edit', [EventController::class, 'update']);
-    Route::delete('/{id}', [EventController::class, 'delete']);
 });
