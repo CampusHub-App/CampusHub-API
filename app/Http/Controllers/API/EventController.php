@@ -128,8 +128,8 @@ class EventController extends Controller
 
         $kode = Registration::where('event_id', $id)
             ->where('user_id', $request->user()->id)
-            ->where('status', '!=', 'cancelled')
-            ->select('id as kode_unik', 'status')
+            ->where('status', '=', 'registered')
+            ->select('id as kode_unik')
             ->first();
 
         if ($request->user()->is_admin) {
@@ -138,7 +138,7 @@ class EventController extends Controller
             ], 403);
         } else if (!$kode) {
             return response([
-                'message' => 'Anda tidak terdaftar pada event ini'
+                'message' => 'Pendaftaran sudah tidak valid atau belum terdaftar'
             ], 401);
         } else {
             return response($kode);
