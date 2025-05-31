@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Registration;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Jobs\MarkAbsentJob;
 
 class EventController extends Controller
 {
@@ -68,217 +69,34 @@ class EventController extends Controller
         }
     }
 
-    public function mine(Request $request)
+    public function myevents(Request $request)
     {
         $user = $request->user();
 
         if ($user->is_admin) {
-            return response(
-                Event::where('user_id', $user->id)
-                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
-            );
-        } else {
-
-            $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
-                ->where('registrations.user_id', $user->id)
-                ->where('registrations.status', 'registered')
-                ->where('events.date', '<=', date('Y-m-d'))
-                ->where('events.end_time', '<=', date('H:i:s'))
-                ->select('registrations.*')
+            $events = Event::where('user_id', $user->id)
+                ->select('id', 'judul', 'foto_event', \DB::raw('DATE(updated_at) as uploaded'), 'kategori_id')
                 ->get();
-
-            if ($absent) {
-                foreach ($absent as $alpha) {
-                    $alpha->status = 'absent';
-                    $alpha->save();
-                }
-            }
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.user_id', $user->id)
-                    ->select(
-                        'events.id',
-                        'events.judul',
-                        'events.foto_event',
-                        \DB::raw('DATE(registrations.created_at) as join_date'),
-                        'registrations.status'
-                    )
-                    ->get()
-            );
-        }
-    }
-
-    public function mywebinar(Request $request)
-    {
-
-        if ($request->user()->is_admin) {
-
-            return response(Event::where('kategori_id', 1)
-                ->where('user_id', $request->user()->id)
-                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get());
-
+            return response($events);
         } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
+            $events = Event::join('registrations', 'events.id', '=', 'registrations.event_id')
+                ->where('registrations.user_id', $user->id)
+                ->select(
+                    'events.id',
+                    'events.judul',
+                    'events.foto_event',
+                    \DB::raw('DATE(registrations.created_at) as join_date'),
+                    'registrations.status'
+                )
+                ->get();
+            return response($events);
         }
-
-    }
-
-    public function myseminar(Request $request)
-    {
-
-        if ($request->user()->is_admin) {
-
-            return response(
-                Event::where('kategori_id', 2)
-                    ->where('user_id', $request->user()->id)
-                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-
-        }
-    }
-
-    public function mykuliahtamu(Request $request)
-    {
-
-        if ($request->user()->is_admin) {
-
-            return response(
-                Event::where('kategori_id', 3)
-                    ->where('user_id', $request->user()->id)
-                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-        }
-
-    }
-
-    public function myworkshop(Request $request)
-    {
-
-        if ($request->user()->is_admin) {
-
-            return response(
-                Event::where('kategori_id', 4)
-                    ->where('user_id', $request->user()->id)
-                    ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-
-        }
-
-    }
-
-    public function mysertifikasi(Request $request)
-    {
-
-        if ($request->user()->is_admin) {
-
-            return response(
-                Event::where('kategori_id', 5)
-                    ->where('user_id', $request->user()->id)->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-        }
-
-    }
-
-    public function registered(Request $request)
-    {
-
-        if (!$request->user()->is_admin) {
-
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.user_id', $request->user()->id)
-                    ->where('registrations.status', 'registered')
-                    ->select(
-                        'events.id',
-                        'events.judul',
-                        'events.foto_event',
-                        \DB::raw('DATE(registrations.created_at) as join_date'),
-                        \DB::raw("'registered' as status")
-                    )
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-        }
-
-    }
-
-    public function cancelled(Request $request)
-    {
-
-        if (!$request->user()->is_admin) {
-
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.user_id', $request->user()->id)
-                    ->where('registrations.status', 'cancelled')
-                    ->select(
-                        'events.id',
-                        'events.judul',
-                        'events.foto_event',
-                        \DB::raw('DATE(registrations.updated_at) as cancel_date'),
-                        \DB::raw("'cancelled' as status")
-                    )
-                    ->get()
-            );
-
-        } else {
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-        }
-
     }
 
     public function participants(Request $request, $id)
     {
 
         $user = $request->user();
-        $absent = Registration::join('events', 'registrations.event_id', '=', 'events.id')
-            ->where('registrations.event_id', $id)
-            ->where('registrations.status', 'registered')
-            ->where('events.date', '<=', date('Y-m-d'))
-            ->where('events.end_time', '<=', date('H:i:s'))
-            ->select('registrations.*')
-            ->get();
-
-        if ($absent) {
-            foreach ($absent as $alpha) {
-                $alpha->status = 'absent';
-                $alpha->save();
-            }
-        }
 
         if ($user->is_admin && Event::where('id', $id)->where('user_id', $user->id)->exists()) {
 
@@ -291,62 +109,6 @@ class EventController extends Controller
                         'users.photo',
                         \DB::raw('DATE(registrations.created_at) as join_date'),
                         'registrations.status'
-                    )
-                    ->get()
-            );
-
-        } else {
-
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-
-        }
-    }
-
-    public function attend(Request $request, $id)
-    {
-
-        if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
-
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.event_id', $id)
-                    ->where('registrations.status', 'registered')
-                    ->join('users', 'registrations.user_id', '=', 'users.id')
-                    ->select(
-                        'users.fullname',
-                        'users.photo',
-                        \DB::raw('DATE(registrations.created_at) as join_date'),
-                        \DB::raw("'registered' as status")
-                    )
-                    ->get()
-            );
-
-        } else {
-
-            return response([
-                'message' => 'Tidak diizinkan'
-            ], 403);
-
-        }
-    }
-
-    public function absent(Request $request, $id)
-    {
-
-        if ($request->user()->is_admin && Event::where('id', $id)->where('user_id', $request->user()->id)->exists()) {
-
-            return response(
-                Event::join('registrations', 'events.id', '=', 'registrations.event_id')
-                    ->where('registrations.event_id', $id)
-                    ->where('registrations.status', 'cancelled')
-                    ->join('users', 'registrations.user_id', '=', 'users.id')
-                    ->select(
-                        'users.fullname',
-                        'users.photo',
-                        \DB::raw('DATE(registrations.created_at) as join_date'),
-                        \DB::raw("'cancelled' as status")
                     )
                     ->get()
             );
@@ -536,7 +298,7 @@ class EventController extends Controller
             }
         }
 
-        Event::create([
+        $event = Event::create([
             'judul' => $request->title,
             'deskripsi' => $request->desc,
             'date' => $request->date,
@@ -551,6 +313,10 @@ class EventController extends Controller
             'available_slot' => $request->slot,
             'user_id' => $request->user()->id,
         ]);
+
+        // Schedule MarkAbsentJob to run at the event's end time
+        $eventEnd = \Carbon\Carbon::parse($event->date . ' ' . $event->end_time);
+        MarkAbsentJob::dispatch($event->id)->delay($eventEnd);
 
         return response([
             'message' => 'Event berhasil dibuat'
