@@ -13,47 +13,35 @@ use Illuminate\Support\Str;
 class EventController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return response([
-            'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= ?", [date('Y-m-d H:i:s')])->count(),
-            'category' => Category::count(),
-            'events' => Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-                ->select('events.*', 'categories.kategori as category_name')
-                ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time'])
-        ]);
-    }
+        $category = $request->query('category');
 
-    public function webinar()
-    {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-            ->select('events.*', 'categories.kategori as category_name')
-            ->where('kategori_id', 1)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
-    }
+        $query = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
+            ->select([
+                'events.id',
+                'events.judul',
+                'events.deskripsi',
+                'events.date',
+                'events.foto_event',
+                'events.pembicara',
+                'events.foto_pembicara',
+                'events.role',
+                'categories.kategori as category_name'
+            ]);
 
-    public function seminar()
-    {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-            ->select('events.*', 'categories.kategori as category_name')
-            ->where('kategori_id', 2)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
-    }
+        if ($category) {
+            $query->where('events.kategori_id', $category);
+            return response($query->get());
+        } else {
+            return response([
+                'trending' => Event::whereRaw("CONCAT(date, ' ', start_time) >= NOW()")->count(),
+                'category' => Category::count(),
+                'events' => $query->get()
+            ]);
+        }
 
-    public function kuliahtamu()
-    {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-            ->select('events.*', 'categories.kategori as category_name')
-            ->where('kategori_id', 3)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
-    }
 
-    public function workshop()
-    {
-        return response(Event::join('categories', 'events.kategori_id', '=', 'categories.id')
-            ->select('events.*', 'categories.kategori as category_name')
-            ->where('kategori_id', 4)
-            ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
     public function sertifikasi()
@@ -212,8 +200,8 @@ class EventController extends Controller
 
             return response(
                 Event::where('kategori_id', 5)
-                    ->where('user_id', $request->user()->id)                ->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
-                ->get()
+                    ->where('user_id', $request->user()->id)->select('events.id', 'events.judul', 'events.foto_event', \DB::raw('DATE(events.updated_at) as uploaded'), 'events.kategori_id')
+                    ->get()
             );
 
         } else {

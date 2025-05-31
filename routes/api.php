@@ -20,12 +20,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
 });
 
 Route::group(['prefix' => 'events'], function () {
-    Route::get('/all', [EventController::class, 'index']);
-    Route::get('/webinar', [EventController::class, 'webinar']);
-    Route::get('/workshop', [EventController::class, 'workshop']);
-    Route::get('/seminar', [EventController::class, 'seminar']);
-    Route::get('/sertifikasi', [EventController::class, 'sertifikasi']);
-    Route::get('/kuliah-tamu', [EventController::class, 'kuliahtamu']);
+    Route::get('/', [EventController::class, 'index']);
     Route::get('/{id}/view', [EventController::class, 'details']);
     Route::get('/categories', [EventController::class, 'categories']);
 });
