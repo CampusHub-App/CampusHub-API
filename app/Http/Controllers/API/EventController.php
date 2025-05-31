@@ -10,6 +10,7 @@ use App\Models\Registration;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Jobs\MarkAbsentJob;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -168,7 +169,8 @@ class EventController extends Controller
             ], 403);
         }
 
-        if (date('Y-m-d', strtotime($event->date . ' -1 day')) <= date('Y-m-d')) {
+        $eventStart = Carbon::parse($event->date)->setTimeFromTimeString($event->start_time);
+        if (Carbon::now()->gte($eventStart)) {
             return response([
                 'message' => 'Pendaftaran telah ditutup'
             ], 400);
@@ -314,7 +316,7 @@ class EventController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        $eventEnd = \Carbon\Carbon::parse($event->date)->setTimeFromTimeString($event->end_time);
+        $eventEnd = Carbon::parse($event->date)->setTimeFromTimeString($event->end_time);
         MarkAbsentJob::dispatch($event->id)->delay($eventEnd);
 
         return response([

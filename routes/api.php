@@ -10,13 +10,13 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('/login/user', [AuthController::class, 'userlogin']);
     Route::post('/login/admin', [AuthController::class, 'adminlogin']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::patch('/change-password', [UserController::class, 'change'])->middleware('auth:api');
 });
 
 Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
-    Route::post('/', [UserController::class, 'update']);
+    Route::put('/', [UserController::class, 'update']);
     Route::get('/', [UserController::class, 'read']);
     Route::delete('/', [UserController::class, 'delete']);
+    Route::patch('/change-password', [UserController::class, 'change']);
 });
 
 Route::group(['prefix' => 'events'], function () {
