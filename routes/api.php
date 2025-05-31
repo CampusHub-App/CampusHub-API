@@ -21,7 +21,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
 
 Route::group(['prefix' => 'events'], function () {
     Route::get('/', [EventController::class, 'index']);
-    Route::get('/{id}/view', [EventController::class, 'details']);
+    Route::get('/{id}', [EventController::class, 'details']);
 });
 
 Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
@@ -29,8 +29,8 @@ Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
     Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
     Route::post('/{id}/register', [EventController::class, 'register']);
     Route::post('/{id}/cancel', [EventController::class, 'cancel']);
-    Route::post('/', [EventController::class, 'create']);
-    Route::put('/{id}/edit', [EventController::class, 'update']);
+    Route::post('/', action: [EventController::class, 'create']);
+    Route::put('/{id}', [EventController::class, 'update']);
     Route::delete('/{id}', [EventController::class, 'delete']);
 });
 
