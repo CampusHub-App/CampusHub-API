@@ -22,7 +22,6 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth:api'], function () {
 Route::group(['prefix' => 'events'], function () {
     Route::get('/', [EventController::class, 'index']);
     Route::get('/{id}/view', [EventController::class, 'details']);
-    Route::get('/categories', [EventController::class, 'categories']);
 });
 
 Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {

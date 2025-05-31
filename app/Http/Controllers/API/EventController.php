@@ -52,11 +52,6 @@ class EventController extends Controller
             ->get()->makeHidden(['user_id', 'created_at', 'updated_at', 'kategori_id', 'tempat', 'available_slot', 'tempat', 'start_time', 'end_time']));
     }
 
-    public function categories()
-    {
-        return response(Category::all()->select('id', 'kategori'));
-    }
-
     public function details($id)
     {
         $event = Event::join('categories', 'events.kategori_id', '=', 'categories.id')
