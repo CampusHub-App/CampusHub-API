@@ -46,7 +46,7 @@ class Event extends Model
     protected static function booted()
     {
         static::saving(function ($event) {
-            if (is_null($event->tempat)) {
+            if ($event->tempat == null) {
                 $event->tempat = 'Online';
             }
         });
@@ -55,6 +55,16 @@ class Event extends Model
     protected $casts = [
         'date' => 'date:Y-m-d',
     ];
+
+    public function getStartTimeAttribute($value)
+    {
+        return substr($value, 0, 5);
+    }
+
+    public function getEndTimeAttribute($value)
+    {
+        return substr($value, 0, 5);
+    }
 
     public function category()
     {
@@ -65,5 +75,4 @@ class Event extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
 }
