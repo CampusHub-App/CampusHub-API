@@ -54,8 +54,6 @@ class Event extends Model
 
     protected $casts = [
         'date' => 'date:Y-m-d',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
     ];
 
     public function category()

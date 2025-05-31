@@ -314,8 +314,7 @@ class EventController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        // Schedule MarkAbsentJob to run at the event's end time
-        $eventEnd = \Carbon\Carbon::parse($event->date . ' ' . $event->end_time);
+        $eventEnd = \Carbon\Carbon::parse($event->date)->setTimeFromTimeString($event->end_time);
         MarkAbsentJob::dispatch($event->id)->delay($eventEnd);
 
         return response([
