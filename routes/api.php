@@ -25,10 +25,7 @@ Route::group(['prefix' => 'events'], function () {
 });
 
 Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
-    Route::get('/{id}/participants', [EventController::class, 'participants']);
-    Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
     Route::post('/{id}/register', [EventController::class, 'register']);
-    Route::post('/{id}/cancel', [EventController::class, 'cancel']);
     Route::post('/', action: [EventController::class, 'create']);
     Route::put('/{id}', [EventController::class, 'update']);
     Route::delete('/{id}', [EventController::class, 'delete']);
@@ -36,6 +33,8 @@ Route::group(['prefix' => 'events', 'middleware' => 'auth:api'], function () {
 
 Route::group(['prefix' => 'my-events', 'middleware' => 'auth:api'], function () {
     Route::get('/', [EventController::class, 'myevents']);
-    Route::get('/{id}/status', [EventController::class, 'status']);
     Route::post('/{id}/check-in', [EventController::class, 'checkin']);
+    Route::get('/{id}/participants', [EventController::class, 'participants']);
+    Route::get('/{id}/kode-unik', [EventController::class, 'kode']);
+    Route::post('/{id}/cancel', [EventController::class, 'cancel']);
 });
