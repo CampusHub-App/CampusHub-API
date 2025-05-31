@@ -122,7 +122,7 @@ class EventController extends Controller
         }
     }
 
-    public function kode(Request $request, $id)
+    public function code(Request $request, $id)
     {
 
         $kode = Registration::where('event_id', $id)
