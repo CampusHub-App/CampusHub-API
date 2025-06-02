@@ -231,7 +231,7 @@ class EventController extends Controller
 
         if (!$registration) {
             return response([
-                'message' => 'Belum terdaftar'
+                'message' => 'Anda tidak terdaftar pada event ini'
             ], 400);
         }
 
