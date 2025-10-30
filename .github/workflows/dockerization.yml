@@ -1,4 +1,6 @@
 name: Deployment Workflow
+permissions:
+  id-token: write
 
 on:
   push:
